@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blanca's Learning Hub</title>
+    
+    <!-- Fonts: Poppins for friendly headings, Plus Jakarta Sans for high legibility in text -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Soft UI & Glassmorphic Palette */
+            --bg-base: #f0f4f8; 
+            --primary: #8b5cf6; 
+            --primary-light: #ede9fe;
+            --primary-hover: #7c3aed;
+            --accent: #ec4899; 
+            --accent-light: #fce7f3;
+            
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --card-border: rgba(255, 255, 255, 0.4);
+            --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+            --card-shadow-hover: 0 15px 35px 0 rgba(139, 92, 246, 0.15);
+
+            /* Typography */
+            --font-heading: 'Poppins', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253, 56%, 85%, 0.5) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(320, 69%, 85%, 0.5) 0, transparent 50%), 
+                radial-gradient(at 50% 100%, hsla(200, 59%, 85%, 0.5) 0, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .ambient-shapes {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.7;
+            animation: float 25s infinite alternate ease-in-out;
+        }
+        
+        .shape-1 {
+            width: 45vw; height: 45vw;
+            background: #d8b4fe; 
+            top: -15%; left: -10%;
+        }
+        
+        .shape-2 {
+            width: 35vw; height: 35vw;
+            background: #fbcfe8; 
+            bottom: -5%; right: -10%;
+            animation-delay: -7s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(3%, 8%) scale(1.15); }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem 6rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 4rem;
+            animation: fadeDown 1s ease-out;
+        }
+
+        .student-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.5rem;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            color: var(--primary-hover);
+            border-radius: 100px;
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid var(--card-border);
+        }
+
+        .hero-title {
+            font-family: var(--font-heading);
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            line-height: 1.2;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+        }
+        
+        .hero-title span {
+            color: var(--primary);
+            position: relative;
+        }
+        
+        .hero-title span::after {
+            content: '';
+            position: absolute;
+            bottom: 8px; left: 0; width: 100%; height: 14px;
+            background: var(--accent-light);
+            z-index: -1;
+            border-radius: 10px;
+            transform: rotate(-1.5deg);
+        }
+
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 650px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .instruction-banner {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: rgba(255, 251, 235, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(253, 230, 138, 0.8);
+            color: #b45309;
+            padding: 0.8rem 1.8rem;
+            border-radius: 100px;
+            font-size: 0.95rem;
+            margin-top: 2.5rem;
+            box-shadow: 0 4px 15px rgba(253, 230, 138, 0.2);
+            animation: fadeUp 1s ease-out 0.3s both;
+        }
+
+        /* Presentation Viewer Styles */
+        .presentation-section {
+            margin-bottom: 5rem;
+            animation: fadeUp 0.8s ease-out both;
+        }
+
+        .presentation-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 1.25rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--card-border);
+        }
+
+        .presentation-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 16px;
+            background-color: #f1f5f9;
+        }
+
+        .presentation-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 3rem 1rem 1rem;
+            margin-top: 5rem;
+            border-top: 2px dashed rgba(203, 213, 225, 0.6);
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+        
+        .footer strong {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .block-section {
+            margin-bottom: 4.5rem;
+            animation: fadeUp 0.8s ease-out both;
+        }
+
+        .block-header {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+            padding-left: 0.5rem;
+        }
+
+        .block-title {
+            font-family: var(--font-heading);
+            font-size: 1.9rem;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .block-icon {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary-light) 0%, #fff 100%);
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.1);
+            color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--card-border);
+        }
+
+        .labs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.8rem;
+        }
+
+        .lab-card {
+            display: block;
+            text-decoration: none;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 2.2rem;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--card-border);
+            overflow: hidden;
+        }
+
+        .lab-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .lab-card > * { position: relative; z-index: 1; }
+
+        .lab-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--card-shadow-hover);
+            border-color: var(--primary-light);
+        }
+
+        .card-icon-box {
+            width: 58px; height: 58px;
+            border-radius: 18px;
+            background: var(--primary-light);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.15);
+        }
+
+        .lab-card:hover .card-icon-box {
+            background: var(--primary);
+            color: #fff;
+            transform: scale(1.15) rotate(-8deg);
+        }
+
+        .card-title {
+            font-family: var(--font-heading);
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.6rem;
+            line-height: 1.4;
+        }
+
+        .card-desc {
+            font-size: 0.98rem;
+            color: var(--text-muted);
+            margin-bottom: 1.8rem;
+            line-height: 1.5;
+        }
+
+        .card-action {
+            display: inline-flex; align-items: center; gap: 0.6rem;
+            font-weight: 700; color: var(--primary);
+            font-size: 0.95rem; transition: 0.3s;
+            padding: 0.5rem 1rem;
+            background: var(--primary-light);
+            border-radius: 100px;
+        }
+
+        .card-action svg { transition: transform 0.3s ease; }
+        .lab-card:hover .card-action { background: var(--primary); color: #fff; }
+        .lab-card:hover .card-action svg { transform: translateX(5px); }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, rgba(241, 245, 249, 0.6) 25%, rgba(226, 232, 240, 0.8) 50%, rgba(241, 245, 249, 0.6) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 10px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            padding: 4rem 2rem;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 2px dashed rgba(148, 163, 184, 0.5);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            text-align: left;
+        }
+        
+        .empty-state-icon {
+            width: 65px; height: 65px;
+            background: #f1f5f9;
+            border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            color: #94a3b8;
+            flex-shrink: 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .empty-state-text h3 {
+            font-family: var(--font-heading);
+            color: var(--text-main); 
+            margin-bottom: 0.35rem; 
+            font-size: 1.3rem;
+        }
+        
+        .empty-state-text p { color: var(--text-muted); font-size: 1rem; margin: 0; }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+    </div>
+
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="student-badge">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                Student: Blanca 👩🏻‍💻
+            </div>
+            <h1 class="hero-title">Blanca's <span>Learning Hub</span> ✨</h1>
+            <p class="hero-subtitle">Welcome to your personal learning space! 🌟 Explore your blocks, practice your skills, and achieve your goals!</p>
+            
+            <div class="instruction-banner">
+                💡 <strong>Tip:</strong> Complete these activities and ask teacher for help when needed. 🙋🏻‍♀️
+            </div>
+        </section>
+
+        <!-- Presentation Viewer Section -->
+        <section class="presentation-section">
+            <div class="block-header">
+                <div class="block-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 3h20v14H2z"></path><path d="M8 21h8"></path><path d="M12 17v4"></path>
+                    </svg>
+                </div>
+                <h2 class="block-title">Class Presentation 📊</h2>
+            </div>
+            <div class="presentation-container">
+                <div class="presentation-wrapper">
+                    <iframe 
+                        src="https://docs.google.com/presentation/d/1OaprxYQHwD-sot0JVvIySu0XWeBYqSvjLrxdPSZhFDs/embed?start=false&loop=false&delayms=3000" 
+                        frameborder="0" 
+                        allowfullscreen="true" 
+                        mozallowfullscreen="true" 
+                        webkitallowfullscreen="true">
+                    </iframe>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Container for Sections -->
+        <div id="hub-blocks-container">
+            <!-- Sections will be injected here via JS -->
+        </div>
+
+        <!-- Footer Branding -->
+        <footer class="footer">
+            <p>Designed with ❤️ by <strong>Teacher Netza</strong></p>
+        </footer>
+    </main>
+
+    <script>
+        // REPOSITORY CONFIGURATION FOR BLANCA
+        const GITHUB_CONFIG = {
+            owner: 'teachernetza',
+            repo: 'blanca-class',
+            sections: [
+                { folder: 'Bloque 1', displayTitle: 'Block 1' },
+                { folder: 'Bloque 2', displayTitle: 'Block 2' },
+                { folder: 'Bloque 3', displayTitle: 'Block 3' },
+                { folder: 'Bloque 4', displayTitle: 'Block 4' },
+                { folder: 'Practice', displayTitle: 'Practice Labs' } 
+            ]
+        };
+
+        const hubContainer = document.getElementById('hub-blocks-container');
+
+        function formatLabTitle(filename) {
+            let clean = filename.replace(/\.html$/i, ''); 
+            clean = clean.replace(/[-_]/g, ' '); 
+            clean = clean.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+            return clean;
+        }
+
+        function createBlockSection(title, id) {
+            const section = document.createElement('section');
+            section.className = 'block-section';
+            section.id = `section-${id}`;
+            
+            // Ícono distinto para la sección de "Practice"
+            const iconSvg = title.includes('Practice')
+                ? '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>' 
+                : '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line>';
+
+            section.innerHTML = `
+                <div class="block-header">
+                    <div class="block-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            ${iconSvg}
+                        </svg>
+                    </div>
+                    <h2 class="block-title">${title}</h2>
+                </div>
+                <div class="labs-grid" id="grid-${id}">
+                    ${generateSkeletons(3)}
+                </div>
+            `;
+            return section;
+        }
+
+        function generateSkeletons(count) {
+            let skeletons = '';
+            for(let i=0; i<count; i++) {
+                skeletons += `
+                    <div class="lab-card" style="pointer-events: none; border-color: transparent; box-shadow: none; background: rgba(255,255,255,0.4);">
+                        <div class="skeleton" style="width: 58px; height: 58px; border-radius: 18px; margin-bottom: 1.5rem;"></div>
+                        <div class="skeleton" style="width: 75%; height: 26px; margin-bottom: 0.6rem;"></div>
+                        <div class="skeleton" style="width: 100%; height: 16px; margin-bottom: 0.5rem;"></div>
+                        <div class="skeleton" style="width: 90%; height: 16px; margin-bottom: 1.8rem;"></div>
+                        <div class="skeleton" style="width: 130px; height: 32px; border-radius: 100px;"></div>
+                    </div>
+                `;
+            }
+            return skeletons;
+        }
+
+        function getEmptyStateHTML(message) {
+            return `
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    </div>
+                    <div class="empty-state-text">
+                        <h3>Coming Soon! 🚧</h3>
+                        <p>${message} ⏳</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadBlockData(sectionConfig) {
+            const folderName = sectionConfig.folder;
+            const displayTitle = sectionConfig.displayTitle;
+            
+            const blockId = folderName.replace(/\s+/g, '-').toLowerCase();
+            const sectionNode = createBlockSection(displayTitle, blockId);
+            hubContainer.appendChild(sectionNode);
+            
+            const gridContainer = document.getElementById(`grid-${blockId}`);
+
+            try {
+                const folderPath = encodeURIComponent(folderName);
+                const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${folderPath}`;
+                
+                const res = await fetch(url);
+                
+                if (!res.ok) {
+                    if (res.status === 404) {
+                        gridContainer.innerHTML = getEmptyStateHTML(`The folder "${folderName}" is not available yet. Check back later!`);
+                        return;
+                    }
+                    throw new Error(`Connection error: ${res.status}`);
+                }
+                
+                const data = await res.json();
+                
+                // Filtrar para mostrar unicamente HTMLs interactivos
+                const htmlFiles = data.filter(file => file.type === 'file' && file.name.endsWith('.html'));
+
+                if (htmlFiles.length === 0) {
+                    gridContainer.innerHTML = getEmptyStateHTML(`Currently there are no activities in this section. More coming soon!`);
+                    return;
+                }
+
+                gridContainer.innerHTML = '';
+                
+                htmlFiles.forEach((file) => {
+                    const title = formatLabTitle(file.name);
+                    
+                    const card = document.createElement('a');
+                    card.href = file.path; 
+                    card.className = 'lab-card';
+                    
+                    card.innerHTML = `
+                        <div class="card-icon-box">
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="card-title">${title}</h3>
+                        <p class="card-desc">Complete this activity to practice and improve your English skills. 🧠</p>
+                        <div class="card-action">
+                            <span>Start Activity 🚀</span>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </div>
+                    `;
+                    gridContainer.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error(`Error loading ${folderName}:`, error);
+                gridContainer.innerHTML = getEmptyStateHTML(`Failed to connect to the repository for ${displayTitle}.`);
+            }
+        }
+
+        async function initializeHub() {
+            for (const section of GITHUB_CONFIG.sections) {
+                await loadBlockData(section);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', initializeHub);
+    </script>
+</body>
+</html>
