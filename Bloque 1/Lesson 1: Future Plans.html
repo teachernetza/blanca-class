@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Future Plans: Self-Study Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;900&display=swap');
+        
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background-color: #f1f5f9;
+            color: #0f172a;
+            background-image: radial-gradient(#cbd5e1 2px, transparent 2px);
+            background-size: 32px 32px;
+        }
+
+        h1, h2, h3, h4, .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Neo-Brutalist 3D Elements */
+        .card-3d {
+            background: white;
+            border: 4px solid #0f172a;
+            border-radius: 1.5rem;
+            box-shadow: 8px 8px 0px 0px #0f172a;
+            transition: all 0.2s ease;
+        }
+        
+        .card-3d-blue { border-color: #1d4ed8; box-shadow: 8px 8px 0px 0px #1d4ed8; }
+        .card-3d-amber { border-color: #d97706; box-shadow: 8px 8px 0px 0px #d97706; }
+        .card-3d-emerald { border-color: #047857; box-shadow: 8px 8px 0px 0px #047857; }
+        .card-3d-purple { border-color: #6d28d9; box-shadow: 8px 8px 0px 0px #6d28d9; }
+
+        .btn-3d {
+            background: white;
+            border: 4px solid #0f172a;
+            border-radius: 1rem;
+            box-shadow: 4px 6px 0px 0px #0f172a;
+            transition: all 0.1s ease;
+            cursor: pointer;
+            font-weight: 700;
+        }
+        .btn-3d:active:not(:disabled) {
+            transform: translateY(6px) translateX(4px);
+            box-shadow: 0px 0px 0px 0px #0f172a;
+        }
+        .btn-3d:disabled {
+            cursor: not-allowed;
+            transform: translateY(6px) translateX(4px);
+            box-shadow: 0px 0px 0px 0px #0f172a;
+        }
+
+        .img-card {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 4px solid #0f172a;
+            border-radius: 1.2rem 1.2rem 0 0;
+        }
+
+        /* Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.6s cubic-bezier(0.17, 0.85, 0.43, 1);
+        }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            60% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop { animation: popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+        /* Modal Styles */
+        #dictionary-modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-content {
+            transition: transform 0.3s cubic-bezier(0.17, 0.85, 0.43, 1);
+        }
+        
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; border-left: 2px solid #cbd5e1; }
+        ::-webkit-scrollbar-thumb { background: #0f172a; border-radius: 0; border: 2px solid #e2e8f0; }
+    </style>
+</head>
+<body class="antialiased flex flex-col min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="w-full bg-white border-b-4 border-slate-900 z-40 sticky top-0 transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-blue-600 border-2 border-slate-900 rounded-xl flex items-center justify-center text-white text-2xl shadow-[4px_4px_0px_0px_#0f172a]">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <div class="hidden sm:block">
+                    <h1 class="font-black text-xl text-slate-900 tracking-tight font-display">Self-Study Lab</h1>
+                    <p class="text-xs font-bold text-blue-600 uppercase tracking-widest">Future Plans</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3 sm:gap-6">
+                <!-- Score Badge -->
+                <div class="bg-amber-400 border-2 border-slate-900 text-slate-900 px-4 py-2 rounded-xl text-lg font-black shadow-[4px_4px_0px_0px_#0f172a] flex items-center gap-2 transition-all" id="score-badge">
+                    <i class="fas fa-star text-white drop-shadow-md"></i> 
+                    <span><span id="score-display">0</span> XP</span>
+                </div>
+                
+                <!-- Dictionary Button -->
+                <button onclick="toggleDictionary()" class="bg-purple-600 hover:bg-purple-500 border-2 border-slate-900 text-white px-4 py-2 rounded-xl text-lg font-black shadow-[4px_4px_0px_0px_#0f172a] flex items-center gap-2 transition-all active:translate-y-1 active:shadow-[0px_0px_0px_0px_#0f172a]">
+                    <i class="fas fa-book"></i> <span class="hidden sm:inline">Dict</span>
+                </button>
+            </div>
+        </div>
+        <div class="w-full bg-slate-200 h-2">
+            <div id="scroll-progress" class="bg-blue-600 h-full w-0 transition-all duration-150 ease-out border-r-2 border-slate-900"></div>
+        </div>
+    </nav>
+
+    <!-- Dictionary Modal -->
+    <div id="dictionary-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 opacity-0 invisible">
+        <div class="modal-content card-3d card-3d-purple bg-white w-full max-w-2xl max-h-[80vh] flex flex-col scale-95">
+            <div class="p-6 border-b-4 border-slate-900 flex justify-between items-center bg-purple-100 rounded-t-xl">
+                <h2 class="text-3xl font-black text-slate-900 font-display flex items-center gap-3"><i class="fas fa-book text-purple-600"></i> Dictionary</h2>
+                <button onclick="toggleDictionary()" class="w-10 h-10 bg-white border-2 border-slate-900 rounded-lg shadow-[2px_2px_0px_0px_#0f172a] flex items-center justify-center text-xl hover:bg-rose-100 active:translate-y-1 active:shadow-none">
+                    <i class="fas fa-times text-rose-600"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-4 flex-grow bg-slate-50 rounded-b-xl">
+                <div class="bg-white p-4 border-2 border-slate-900 rounded-xl shadow-sm">
+                    <p class="font-black text-xl text-slate-900">Settle down <span class="text-sm text-purple-600 uppercase ml-2">Phrasal Verb</span></p>
+                    <p class="text-slate-600 font-bold">ES: Establecerse / Sentar cabeza</p>
+                </div>
+                <div class="bg-white p-4 border-2 border-slate-900 rounded-xl shadow-sm">
+                    <p class="font-black text-xl text-slate-900">Pursue a degree <span class="text-sm text-emerald-600 uppercase ml-2">Phrase</span></p>
+                    <p class="text-slate-600 font-bold">ES: Estudiar una carrera universitaria</p>
+                </div>
+                <div class="bg-white p-4 border-2 border-slate-900 rounded-xl shadow-sm">
+                    <p class="font-black text-xl text-slate-900">Start a business <span class="text-sm text-emerald-600 uppercase ml-2">Phrase</span></p>
+                    <p class="text-slate-600 font-bold">ES: Emprender / Iniciar un negocio</p>
+                </div>
+                <div class="bg-white p-4 border-2 border-slate-900 rounded-xl shadow-sm">
+                    <p class="font-black text-xl text-slate-900">Travel abroad <span class="text-sm text-emerald-600 uppercase ml-2">Phrase</span></p>
+                    <p class="text-slate-600 font-bold">ES: Viajar al extranjero</p>
+                </div>
+                <div class="bg-white p-4 border-2 border-slate-900 rounded-xl shadow-sm">
+                    <p class="font-black text-xl text-slate-900">Look forward to <span class="text-sm text-purple-600 uppercase ml-2">Phrasal Verb</span></p>
+                    <p class="text-slate-600 font-bold">ES: Esperar con ansias / Tener muchas ganas de</p>
+                </div>
+                <div class="bg-white p-4 border-2 border-slate-900 rounded-xl shadow-sm">
+                    <p class="font-black text-xl text-slate-900">Set up <span class="text-sm text-purple-600 uppercase ml-2">Phrasal Verb</span></p>
+                    <p class="text-slate-600 font-bold">ES: Organizar / Configurar / Establecer</p>
+                </div>
+                <div class="bg-white p-4 border-2 border-slate-900 rounded-xl shadow-sm">
+                    <p class="font-black text-xl text-slate-900">Figure out <span class="text-sm text-purple-600 uppercase ml-2">Phrasal Verb</span></p>
+                    <p class="text-slate-600 font-bold">ES: Resolver / Averiguar / Entender</p>
+                </div>
+                <div class="bg-white p-4 border-2 border-slate-900 rounded-xl shadow-sm">
+                    <p class="font-black text-xl text-slate-900">Go ahead <span class="text-sm text-purple-600 uppercase ml-2">Phrasal Verb</span></p>
+                    <p class="text-slate-600 font-bold">ES: Proceder / Continuar / Seguir adelante</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 py-12 flex flex-col gap-24 pb-40">
+        
+        <!-- Hero -->
+        <section class="text-center pt-8 reveal relative">
+            <h2 class="text-6xl md:text-8xl font-black text-slate-900 mb-6 tracking-tight leading-none uppercase font-display">
+                Self-Study <br><span class="text-blue-600" style="-webkit-text-stroke: 2px #0f172a; color: white;">Practice Lab</span>
+            </h2>
+            <p class="text-slate-700 text-2xl font-bold max-w-3xl mx-auto leading-relaxed">
+                Test your knowledge independently! Read the explanations, check the dictionary if you need help, and answer the questions. 
+            </p>
+        </section>
+
+        <!-- Vocab Review Cards -->
+        <section class="reveal scroll-mt-24">
+            <div class="flex items-center gap-6 mb-8">
+                <div class="w-16 h-16 bg-emerald-400 border-4 border-slate-900 rounded-2xl flex items-center justify-center text-3xl shadow-[4px_4px_0px_0px_#0f172a] shrink-0 text-white"><i class="fas fa-brain"></i></div>
+                <div>
+                    <h2 class="text-4xl font-black text-slate-900 font-display">1. Vocabulary Review</h2>
+                    <p class="text-slate-600 font-bold text-xl mt-1">Study these life plans before you practice.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="card-3d card-3d-emerald overflow-hidden bg-white flex flex-col group">
+                    <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=400" alt="Settle down" class="img-card group-hover:scale-105 transition-transform duration-500">
+                    <div class="p-6 flex-grow flex flex-col z-10 bg-white">
+                        <h4 class="text-2xl font-black text-slate-900 mb-1">Settle down 🏡</h4>
+                        <p class="text-emerald-700 font-bold uppercase tracking-wider text-sm mb-2">ES: Establecerse</p>
+                        <p class="text-slate-600 font-medium">To live a quiet life in one place.</p>
+                    </div>
+                </div>
+                <div class="card-3d card-3d-emerald overflow-hidden bg-white flex flex-col group">
+                    <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=400" alt="Pursue a degree" class="img-card group-hover:scale-105 transition-transform duration-500">
+                    <div class="p-6 flex-grow flex flex-col z-10 bg-white">
+                        <h4 class="text-2xl font-black text-slate-900 mb-1">Pursue a degree 🎓</h4>
+                        <p class="text-emerald-700 font-bold uppercase tracking-wider text-sm mb-2">ES: Perseguir un título</p>
+                        <p class="text-slate-600 font-medium">To study at a university.</p>
+                    </div>
+                </div>
+                <div class="card-3d card-3d-emerald overflow-hidden bg-white flex flex-col group">
+                    <img src="https://images.unsplash.com/photo-1553531384-397c80973a0b?q=80&w=400" alt="Start a business" class="img-card group-hover:scale-105 transition-transform duration-500">
+                    <div class="p-6 flex-grow flex flex-col z-10 bg-white">
+                        <h4 class="text-2xl font-black text-slate-900 mb-1">Start a business 💼</h4>
+                        <p class="text-emerald-700 font-bold uppercase tracking-wider text-sm mb-2">ES: Emprender</p>
+                        <p class="text-slate-600 font-medium">To create your own company.</p>
+                    </div>
+                </div>
+                <div class="card-3d card-3d-emerald overflow-hidden bg-white flex flex-col group">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=400" alt="Travel abroad" class="img-card group-hover:scale-105 transition-transform duration-500">
+                    <div class="p-6 flex-grow flex flex-col z-10 bg-white">
+                        <h4 class="text-2xl font-black text-slate-900 mb-1">Travel abroad ✈️</h4>
+                        <p class="text-emerald-700 font-bold uppercase tracking-wider text-sm mb-2">ES: Viajar al extranjero</p>
+                        <p class="text-slate-600 font-medium">To visit a foreign country.</p>
+                    </div>
+                </div>
+                <div class="card-3d card-3d-emerald overflow-hidden bg-white flex flex-col group">
+                    <img src="https://images.unsplash.com/photo-1579621970588-a35d0e7ab9b6?q=80&w=400" alt="Save up" class="img-card group-hover:scale-105 transition-transform duration-500">
+                    <div class="p-6 flex-grow flex flex-col z-10 bg-white">
+                        <h4 class="text-2xl font-black text-slate-900 mb-1">Save up 💰</h4>
+                        <p class="text-emerald-700 font-bold uppercase tracking-wider text-sm mb-2">ES: Ahorrar dinero</p>
+                        <p class="text-slate-600 font-medium">To keep money for the future.</p>
+                    </div>
+                </div>
+                <div class="card-3d card-3d-emerald overflow-hidden bg-white flex flex-col group">
+                    <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=400" alt="Get promoted" class="img-card group-hover:scale-105 transition-transform duration-500">
+                    <div class="p-6 flex-grow flex flex-col z-10 bg-white">
+                        <h4 class="text-2xl font-black text-slate-900 mb-1">Get promoted 📈</h4>
+                        <p class="text-emerald-700 font-bold uppercase tracking-wider text-sm mb-2">ES: Ser ascendido</p>
+                        <p class="text-slate-600 font-medium">To get a higher job position.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Practice 1: Vocabulary -->
+        <section class="reveal scroll-mt-24">
+            <div class="flex items-center gap-6 mb-8">
+                <div class="w-16 h-16 bg-white border-4 border-slate-900 rounded-2xl flex items-center justify-center text-3xl shadow-[4px_4px_0px_0px_#0f172a] shrink-0">🖼️</div>
+                <div>
+                    <h2 class="text-4xl font-black text-slate-900 font-display">Practice 1: Vocabulary</h2>
+                    <p class="text-slate-600 font-bold text-xl mt-1">Select the correct phrase for each situation.</p>
+                </div>
+            </div>
+            <div id="quiz-vocab-container" class="space-y-8"></div>
+        </section>
+
+        <!-- Practice 2: Grammar -->
+        <section class="reveal scroll-mt-24">
+            <div class="flex items-center gap-6 mb-8">
+                <div class="w-16 h-16 bg-blue-500 border-4 border-slate-900 rounded-2xl flex items-center justify-center text-3xl shadow-[4px_4px_0px_0px_#0f172a] shrink-0 text-white">⚖️</div>
+                <div>
+                    <h2 class="text-4xl font-black text-slate-900 font-display">Practice 2: Structure</h2>
+                    <p class="text-slate-600 font-bold text-xl mt-1">Plans (Going to) vs. Instant Decisions (Will).</p>
+                </div>
+            </div>
+            <div class="card-3d bg-blue-50 p-6 mb-8 border-l-8 border-l-blue-600 flex items-start gap-4">
+                <i class="fas fa-info-circle text-blue-600 text-2xl mt-1"></i>
+                <p class="text-lg font-bold text-slate-700">Remember: Use <b>Going To</b> when the person already has a plan or there is evidence. Use <b>Will</b> when the person makes a sudden decision right now.</p>
+            </div>
+            <div id="quiz-grammar-container" class="space-y-8"></div>
+        </section>
+
+        <!-- Practice 3: Phrasal Verbs -->
+        <section class="reveal scroll-mt-24">
+            <div class="flex items-center gap-6 mb-8">
+                <div class="w-16 h-16 bg-purple-500 border-4 border-slate-900 rounded-2xl flex items-center justify-center text-3xl shadow-[4px_4px_0px_0px_#0f172a] shrink-0 text-white">🔗</div>
+                <div>
+                    <h2 class="text-4xl font-black text-slate-900 font-display">Practice 3: Phrasal Verbs</h2>
+                    <p class="text-slate-600 font-bold text-xl mt-1">Use the Dictionary button if you forget the meanings!</p>
+                </div>
+            </div>
+            <div id="quiz-phrasal-container" class="space-y-8"></div>
+        </section>
+
+        <!-- Reading Context & Practice 4 -->
+        <section class="reveal scroll-mt-24">
+            <div class="flex items-center gap-6 mb-8">
+                <div class="w-16 h-16 bg-teal-400 border-4 border-slate-900 rounded-2xl flex items-center justify-center text-3xl shadow-[4px_4px_0px_0px_#0f172a] shrink-0 text-white">📖</div>
+                <div>
+                    <h2 class="text-4xl font-black text-slate-900 font-display">Practice 4: Reading</h2>
+                    <p class="text-slate-600 font-bold text-xl mt-1">Read Sarah's post and answer the questions.</p>
+                </div>
+            </div>
+
+            <div class="card-3d bg-white p-8 md:p-12 mb-10 border-t-[12px] border-teal-400 relative">
+                <div class="absolute -right-4 -top-4 text-6xl rotate-12"><i class="fas fa-thumbtack text-rose-500 drop-shadow-md"></i></div>
+                <h3 class="font-black text-3xl mb-6 text-slate-900 border-b-4 border-slate-900 pb-4 font-display">My Big Plans 🌍</h3>
+                <div class="text-2xl space-y-6 text-slate-800 leading-relaxed font-medium">
+                    <p>
+                        Hi, I am Sarah. I work in a small cafe in my town. I like my job, but I have big plans for my life. Next year, I <b>am going to travel abroad</b>. I want to visit France and Italy. I look forward to the delicious food!
+                    </p>
+                    <p>
+                        I don't have my plane tickets yet, but I <b>will buy</b> them next month when I get paid. Right now, I save up all my tips from the cafe. When I return from Europe, I <b>am going to start a business</b>. I want to open my own bakery. It is a lot of work, but I will figure it out!
+                    </p>
+                </div>
+            </div>
+
+            <div id="quiz-reading-container" class="space-y-8"></div>
+        </section>
+
+        <!-- End Screen -->
+        <section class="reveal pt-20 pb-20 text-center scroll-mt-24">
+            <div class="w-32 h-32 bg-slate-900 text-white border-4 border-slate-900 rounded-full mx-auto flex items-center justify-center text-6xl mb-10 shadow-[6px_6px_0px_0px_#3b82f6]">
+                <i class="fas fa-flag-checkered"></i>
+            </div>
+            <h2 class="text-6xl font-black text-slate-900 mb-6 font-display">Lab Complete!</h2>
+            
+            <div class="card-3d bg-white p-10 max-w-md mx-auto">
+                <p class="text-slate-500 font-black uppercase tracking-widest text-lg mb-2">Final XP Score</p>
+                <div class="text-[80px] leading-none font-black text-blue-600 mb-8 font-display">
+                    <span id="final-score">0</span>
+                </div>
+                <button onclick="window.scrollTo(0,0); setTimeout(() => location.reload(), 500);" class="btn-3d w-full bg-blue-600 text-white text-2xl py-4">
+                    <i class="fas fa-redo-alt mr-2"></i> Restart
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. STATE & UTILS ---
+        let currentScore = 0;
+        let combo = 0;
+
+        function toggleDictionary() {
+            const modal = document.getElementById('dictionary-modal');
+            const content = modal.querySelector('.modal-content');
+            
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                // Small delay to allow display:block to apply before animating opacity
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0', 'invisible');
+                    content.classList.remove('scale-95');
+                    content.classList.add('scale-100');
+                }, 10);
+            } else {
+                modal.classList.add('opacity-0', 'invisible');
+                content.classList.remove('scale-100');
+                content.classList.add('scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300); // Wait for transition
+            }
+        }
+
+        function addScore(basePoints = 10) {
+            combo++;
+            let multiplier = combo >= 3 ? 2 : 1;
+            let earned = basePoints * multiplier;
+            currentScore += earned;
+            
+            document.getElementById('score-display').innerText = currentScore;
+            document.getElementById('final-score').innerText = currentScore;
+            
+            // Visual feedback on badge
+            const badge = document.getElementById('score-badge');
+            badge.classList.add('scale-110', 'bg-emerald-400', 'text-slate-900');
+            badge.classList.remove('bg-amber-400');
+            setTimeout(() => {
+                badge.classList.remove('scale-110', 'bg-emerald-400', 'text-slate-900');
+                badge.classList.add('bg-amber-400');
+            }, 400);
+            
+            return { earned, combo, multiplier };
+        }
+
+        function resetCombo() {
+            combo = 0;
+        }
+
+        function showFeedback(container, isCorrect, feedbackHTML) {
+            const feedbackEl = container.querySelector('.feedback-msg');
+            feedbackEl.innerHTML = feedbackHTML;
+            feedbackEl.classList.remove('hidden');
+            if(isCorrect) {
+                feedbackEl.className = `feedback-msg mt-6 p-5 border-4 border-slate-900 rounded-xl font-bold text-emerald-800 bg-emerald-200 animate-pop text-xl shadow-[4px_4px_0px_0px_#0f172a]`;
+            } else {
+                feedbackEl.className = `feedback-msg mt-6 p-5 border-4 border-slate-900 rounded-xl font-bold text-rose-800 bg-rose-200 animate-pop text-xl shadow-[4px_4px_0px_0px_#0f172a]`;
+            }
+        }
+
+        // --- 2. DATA ---
+        const quizVocab = [
+            { 
+                q: "He puts money in the bank every week because he wants to buy a house. He wants to...", 
+                opts: ["Start a business", "Save up", "Settle down", "Get promoted"], 
+                ans: 1, exp: "'Save up' means to keep money for the future." 
+            },
+            { 
+                q: "She studies biology at the university. She wants to...", 
+                opts: ["Pursue a degree", "Travel abroad", "Start a business", "Settle down"], 
+                ans: 0, exp: "'Pursue a degree' means to study at a university to get a diploma." 
+            },
+            { 
+                q: "They buy tickets to Japan and pack their bags. They want to...", 
+                opts: ["Get promoted", "Settle down", "Save up", "Travel abroad"], 
+                ans: 3, exp: "'Travel abroad' means to visit a foreign country." 
+            },
+            { 
+                q: "I want to be the manager of my department next year. I want to...", 
+                opts: ["Get promoted", "Start a business", "Travel abroad", "Settle down"], 
+                ans: 0, exp: "'Get promoted' means to get a higher position at your job." 
+            },
+            { 
+                q: "He wants to create his own coffee shop and be the boss. He wants to...", 
+                opts: ["Save up", "Pursue a degree", "Start a business", "Settle down"], 
+                ans: 2, exp: "'Start a business' means to create your own company." 
+            }
+        ];
+
+        const quizGrammar = [
+            { 
+                q: "Look at the dark clouds in the sky! It _____.", 
+                opts: ["will rain", "is going to rain"], 
+                ans: 1, exp: "We use 'going to' when there is physical evidence right now (the dark clouds)." 
+            },
+            { 
+                q: "I don't have any milk in the fridge. I _____ to the store to buy some.", 
+                opts: ["will go", "am going to go"], 
+                ans: 0, exp: "We use 'will' for sudden, instant decisions made at the moment of speaking." 
+            },
+            { 
+                q: "She has the plane tickets in her hand. She _____ to Paris on Friday.", 
+                opts: ["will fly", "is going to fly"], 
+                ans: 1, exp: "She has the tickets, so it is a pre-planned action. We use 'going to'." 
+            },
+            { 
+                q: "A: The phone is ringing! <br>B: Don't worry, I _____ answer it.", 
+                opts: ["am going to", "will"], 
+                ans: 1, exp: "Answering the phone is a sudden decision/offer made exactly when it rings. We use 'will'." 
+            },
+            { 
+                q: "They save money every month because they _____ buy a new house next year.", 
+                opts: ["will", "are going to"], 
+                ans: 1, exp: "They have a clear intention and a plan (they save money for it). We use 'going to'." 
+            }
+        ];
+
+        const quizPhrasal = [
+            { 
+                q: "I am very excited for my birthday party! I _____ it.", 
+                opts: ["look forward to", "set up", "figure out", "go ahead"], 
+                ans: 0, exp: "'Look forward to' means you are excited about a future event." 
+            },
+            { 
+                q: "We need to _____ a meeting for tomorrow morning.", 
+                opts: ["figure out", "go ahead", "set up", "look forward to"], 
+                ans: 2, exp: "'Set up' means to organize or arrange something (like a meeting)." 
+            },
+            { 
+                q: "I don't know the answer to this math problem, but I will _____ it _____.", 
+                opts: ["set / up", "look / forward to", "go / ahead", "figure / out"], 
+                ans: 3, exp: "'Figure out' means to solve a problem or understand something." 
+            },
+            { 
+                q: "The manager says we can _____ with the new project.", 
+                opts: ["go ahead", "figure out", "set up", "look forward to"], 
+                ans: 0, exp: "'Go ahead' means to proceed or continue with an action." 
+            }
+        ];
+
+        const quizReading = [
+            { 
+                q: "Where does Sarah work right now?", 
+                opts: ["In a bakery", "In a small cafe", "In France"], 
+                ans: 1, exp: "She says: 'I work in a small cafe in my town.'" 
+            },
+            { 
+                q: "Why does she say 'I am going to travel abroad' instead of 'I will travel'?", 
+                opts: ["Because it is a sudden decision.", "Because it is a clear plan/intention for her life.", "Because she has the tickets."], 
+                ans: 1, exp: "It is a life plan/intention she has for next year, so she uses 'going to'." 
+            },
+            { 
+                q: "Why does she say 'I will buy them next month'?", 
+                opts: ["She makes a promise/decision for when she gets money.", "She already has the tickets.", "It is a physical evidence."], 
+                ans: 0, exp: "She makes a resolution/decision for the future when she gets paid." 
+            },
+            { 
+                q: "What does Sarah do with her tips from the cafe?", 
+                opts: ["She buys food.", "She travels to Italy.", "She saves them up."], 
+                ans: 2, exp: "She says: 'Right now, I save up all my tips from the cafe.'" 
+            },
+            { 
+                q: "What is her plan for when she returns from Europe?", 
+                opts: ["To figure out her job.", "To start a business.", "To work in the cafe."], 
+                ans: 1, exp: "She says: 'When I return from Europe, I am going to start a business.'" 
+            }
+        ];
+
+        // --- 3. RENDERERS ---
+        function renderMCQGrid(containerId, data) {
+            const container = document.getElementById(containerId);
+            data.forEach((item, idx) => {
+                const block = document.createElement('div');
+                block.dataset.answered = "false";
+                block.className = `card-3d bg-white p-6 sm:p-10 relative overflow-hidden border-4 border-slate-900`;
+                
+                let htmlStr = `<p class="text-2xl font-black text-slate-900 mb-8 leading-relaxed">${idx+1}. ${item.q}</p>
+                               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">`;
+                
+                item.opts.forEach((opt, i) => {
+                    htmlStr += `<button onclick="handleMCQ(this, ${i}, ${item.ans}, '${item.exp}')" 
+                                class="btn-3d text-left w-full bg-slate-50 text-slate-800 py-4 px-6 text-xl hover:bg-slate-100 flex items-center justify-between group">
+                                <span>${opt}</span>
+                                <i class="fas fa-arrow-right opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                </button>`;
+                });
+                
+                htmlStr += `</div><div class="feedback-msg hidden mt-6 text-xl"></div>`;
+                block.innerHTML = htmlStr;
+                container.appendChild(block);
+            });
+        }
+
+        window.handleMCQ = function(btn, selectedIdx, correctIdx, explanation) {
+            const block = btn.closest('.card-3d');
+            if (block.dataset.answered === "true") return;
+            block.dataset.answered = "true";
+
+            const buttons = block.querySelectorAll('button');
+            buttons.forEach(b => b.disabled = true);
+
+            if (selectedIdx === correctIdx) {
+                const stats = addScore();
+                btn.classList.remove('bg-slate-50', 'text-slate-800');
+                btn.classList.add('bg-emerald-500', 'text-white', 'border-emerald-700');
+                
+                let comboMsg = stats.multiplier > 1 ? `<span class="bg-amber-400 text-slate-900 px-3 py-1 border-2 border-slate-900 rounded-lg text-sm ml-3 shadow-[2px_2px_0px_0px_#0f172a]">Combo x${stats.multiplier}!</span>` : '';
+                showFeedback(block, true, `<div class="mb-2"><i class="fas fa-check-circle mr-2"></i> <b>Correct! +${stats.earned}XP</b> ${comboMsg}</div> <div class="text-lg font-medium">${explanation}</div>`);
+            } else {
+                resetCombo();
+                btn.classList.remove('bg-slate-50', 'text-slate-800');
+                btn.classList.add('bg-rose-500', 'text-white', 'border-rose-700');
+                
+                const correctBtn = buttons[correctIdx];
+                correctBtn.classList.remove('bg-slate-50', 'text-slate-800');
+                correctBtn.classList.add('bg-emerald-100', 'text-emerald-800', 'border-emerald-300');
+                
+                showFeedback(block, false, `<div class="mb-2"><i class="fas fa-times-circle mr-2"></i> <b>Incorrect.</b></div> <div class="text-lg font-medium">${explanation}</div>`);
+            }
+        };
+
+        // --- 4. INIT ---
+        function initApp() {
+            renderMCQGrid('quiz-vocab-container', quizVocab);
+            renderMCQGrid('quiz-grammar-container', quizGrammar);
+            renderMCQGrid('quiz-phrasal-container', quizPhrasal);
+            renderMCQGrid('quiz-reading-container', quizReading);
+            
+            // Scroll Reveals
+            const reveals = document.querySelectorAll('.reveal');
+            const observerOptions = { root: null, rootMargin: '0px 0px -10% 0px', threshold: 0.1 };
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) { entry.target.classList.add('active'); }
+                });
+            }, observerOptions);
+            reveals.forEach(reveal => revealObserver.observe(reveal));
+
+            // Progress Bar
+            window.addEventListener('scroll', () => {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                document.getElementById('scroll-progress').style.width = scrolled + "%";
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
