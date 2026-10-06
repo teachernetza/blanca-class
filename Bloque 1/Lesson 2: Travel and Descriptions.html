@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Travel & Descriptions | Autoestudio para Kaeren</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: #f8fafc;
+            background-image: 
+                radial-gradient(at 10% 0%, hsla(217, 100%, 90%, 1) 0, transparent 40%), 
+                radial-gradient(at 90% 10%, hsla(286, 80%, 90%, 1) 0, transparent 40%),
+                radial-gradient(at 50% 100%, hsla(190, 80%, 85%, 1) 0, transparent 40%);
+            background-attachment: fixed;
+            color: #0f172a;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        /* Soft UI / Glassmorphism */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+            border-radius: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .lexical-chunk {
+            background: rgba(14, 165, 233, 0.15);
+            color: #0369a1;
+            padding: 0.1rem 0.4rem;
+            border-radius: 0.375rem;
+            font-weight: 800;
+        }
+
+        /* Animaciones */
+        .btn-interactive { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-interactive:active:not(:disabled) { transform: scale(0.95); }
+        .btn-interactive:disabled { cursor: not-allowed; }
+
+        @keyframes popIn {
+            0% { transform: scale(0.90); opacity: 0; }
+            50% { transform: scale(1.02); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop { animation: popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        .animate-shake { animation: shake 0.4s ease-in-out; }
+
+        /* Imágenes con Overlay */
+        .img-wrap {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+            aspect-ratio: 4/3; 
+        }
+        .img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .img-wrap:hover img { transform: scale(1.08); }
+        .img-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(15,23,42,0.9) 0%, rgba(15,23,42,0.2) 60%, transparent 100%);
+            display: flex;
+            align-items: flex-end;
+            padding: 1rem;
+            color: white;
+        }
+
+        /* Dropdowns personalizados */
+        select.inline-select {
+            appearance: none;
+            background-color: rgba(255,255,255,0.9);
+            border: 2px solid #bae6fd;
+            padding: 0.1rem 1.5rem 0.1rem 0.5rem;
+            border-radius: 0.5rem;
+            font-weight: 800;
+            color: #0284c7;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%230284c7'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.2rem center;
+            background-size: 1rem;
+        }
+        select.inline-select:hover:not(:disabled) { background-color: #f0f9ff; border-color: #38bdf8; }
+        select.inline-select:disabled { opacity: 1; }
+    </style>
+</head>
+<body class="antialiased min-h-screen">
+
+    <!-- Sticky Header -->
+    <header class="fixed top-0 w-full glass-header z-50 shadow-sm h-16 sm:h-20 flex items-center">
+        <div class="max-w-5xl mx-auto w-full px-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-sky-500 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <i class="fas fa-plane-departure"></i>
+                </div>
+                <div>
+                    <h1 class="font-black text-slate-800 text-sm sm:text-lg leading-tight">Masterclass de Descripciones</h1>
+                    <p class="text-[10px] sm:text-xs font-bold text-indigo-600 uppercase tracking-widest">Estudiante: Kaeren</p>
+                </div>
+            </div>
+            
+            <div class="bg-white border-2 border-slate-200 text-slate-700 px-4 py-2 rounded-xl font-black flex items-center gap-2 shadow-sm transition-all" id="score-badge">
+                <i class="fas fa-star text-amber-500"></i> 
+                <span class="text-sm sm:text-base"><span id="score-display">0</span> / 30 Pts</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 pt-28 pb-24 space-y-12">
+        
+        <!-- INTRO & OBJETIVOS -->
+        <section class="text-center pt-8 pb-4">
+            <h2 class="text-4xl sm:text-6xl font-black tracking-tight mb-4 text-slate-800">
+                ¡Hola Kaeren! Bienvenida a tu <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-sky-500">Guía Interactiva.</span>
+            </h2>
+            
+            <div class="mt-8 glass-panel p-6 text-left border-l-4 border-l-sky-500 max-w-3xl mx-auto">
+                <h3 class="text-xl font-black text-slate-800 mb-3"><i class="fas fa-bullseye text-sky-500 mr-2"></i>¿Para qué sirve esta lección?</h3>
+                <ul class="space-y-2 text-slate-600 font-medium list-disc list-inside">
+                    <li>Aprenderás a <b>describir lugares, climas y experiencias</b> de viaje como un nativo.</li>
+                    <li>Dejarás de usar la palabra "very" para todo y comenzarás a usar <b>Adjetivos Extremos</b> (como "breathtaking" o "freezing").</li>
+                    <li>Entenderás la regla exacta para usar <b>So, Very, Such, Too</b> y <b>Enough</b> sin confundirte al hablar.</li>
+                </ul>
+                <p class="mt-4 text-sm text-slate-500 italic">Instrucciones: Lee cuidadosamente la teoría en español y luego completa los ejercicios en inglés para sumar 30 puntos.</p>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 1: VOCABULARIO VISUAL -->
+        <section class="glass-panel p-6 sm:p-10">
+            <div class="flex items-center gap-4 mb-6 border-b border-slate-200 pb-4">
+                <div class="w-12 h-12 bg-indigo-500 text-white rounded-full flex items-center justify-center text-xl shadow-md"><i class="fas fa-images"></i></div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">1. Vocabulario Visual</h2>
+            </div>
+            <p class="text-slate-600 font-medium mb-6">Estudia estos adjetivos de viaje. Los necesitarás para todos los ejercicios. Presta atención a su significado en español.</p>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="img-wrap shadow-sm border-2 border-white"><img src="https://images.unsplash.com/photo-1517713982677-4b66332f98de?auto=format&fit=crop&w=400&q=80" loading="lazy"><div class="img-overlay flex-col justify-end"><h3 class="text-lg font-black leading-tight text-white">Crowded</h3><p class="text-xs text-white/90">Lleno de gente / Abarrotado</p></div></div>
+                <div class="img-wrap shadow-sm border-2 border-white"><img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=400&q=80" loading="lazy"><div class="img-overlay flex-col justify-end"><h3 class="text-lg font-black leading-tight text-emerald-300">Breathtaking</h3><p class="text-xs text-white/90">Que quita el aliento / Impresionante</p></div></div>
+                <div class="img-wrap shadow-sm border-2 border-white"><img src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=400&q=80" loading="lazy"><div class="img-overlay flex-col justify-end"><h3 class="text-lg font-black leading-tight text-amber-300">Cozy</h3><p class="text-xs text-white/90">Acogedor / Cómodo y cálido</p></div></div>
+                <div class="img-wrap shadow-sm border-2 border-white"><img src="https://images.unsplash.com/photo-1498555132961-f09b52a4f4d2?auto=format&fit=crop&w=400&q=80" loading="lazy"><div class="img-overlay flex-col justify-end"><h3 class="text-lg font-black leading-tight text-purple-300">Exhausting</h3><p class="text-xs text-white/90">Agotador / Muy cansado</p></div></div>
+                <div class="img-wrap shadow-sm border-2 border-white"><img src="https://images.unsplash.com/photo-1517361265-3ebdfec5d4e1?auto=format&fit=crop&w=400&q=80" loading="lazy"><div class="img-overlay flex-col justify-end"><h3 class="text-lg font-black leading-tight text-cyan-300">Freezing</h3><p class="text-xs text-white/90">Helado / Frío extremo</p></div></div>
+                <div class="img-wrap shadow-sm border-2 border-white"><img src="https://images.unsplash.com/photo-1504370805625-d32c54b16100?auto=format&fit=crop&w=400&q=80" loading="lazy"><div class="img-overlay flex-col justify-end"><h3 class="text-lg font-black leading-tight text-rose-400">Boiling</h3><p class="text-xs text-white/90">Hirviendo / Calor extremo</p></div></div>
+                <div class="img-wrap shadow-sm border-2 border-white"><img src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=400&q=80" loading="lazy"><div class="img-overlay flex-col justify-end"><h3 class="text-lg font-black leading-tight text-pink-300">Picturesque</h3><p class="text-xs text-white/90">Pintoresco / Como de foto</p></div></div>
+                <div class="img-wrap shadow-sm border-2 border-white"><img src="https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=400&q=80" loading="lazy"><div class="img-overlay flex-col justify-end"><h3 class="text-lg font-black leading-tight text-orange-300">Touristy</h3><p class="text-xs text-white/90">Diseñado solo para turistas (Suele ser caro)</p></div></div>
+            </div>
+        </section>
+
+        <!-- PRÁCTICA 1: VOCABULARIO -->
+        <section class="glass-panel p-6 sm:p-10 border border-indigo-200">
+            <div class="flex items-center justify-between mb-8 border-b border-slate-200 pb-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-pencil-alt text-indigo-500"></i> Práctica 1: Vocabulario
+                    </h2>
+                    <p class="text-slate-500 text-sm font-medium mt-1">Selecciona el adjetivo correcto según el contexto de la oración.</p>
+                </div>
+                <div class="bg-indigo-100 text-indigo-700 font-bold px-4 py-2 rounded-xl text-sm shrink-0">10 Puntos</div>
+            </div>
+            
+            <div id="vocab-container" class="space-y-6">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: EXPLICACIONES GRAMATICALES -->
+        <section class="space-y-6">
+            <div class="flex items-center gap-4 mb-2 pl-4">
+                <div class="w-12 h-12 bg-sky-500 text-white rounded-full flex items-center justify-center text-xl shadow-md"><i class="fas fa-book-open"></i></div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">2. Teoría Gramatical (Estudio)</h2>
+            </div>
+
+            <!-- Regla 1: So, Very, Such -->
+            <div class="glass-panel p-6 sm:p-8">
+                <h3 class="text-xl font-black text-sky-700 mb-4 border-b border-slate-200 pb-2">Regla 1: So, Very y Such</h3>
+                <p class="text-slate-600 mb-4 font-medium">Estas tres palabras sirven para intensificar, pero su estructura en la oración es diferente.</p>
+                
+                <div class="grid sm:grid-cols-3 gap-4">
+                    <div class="bg-white/80 p-4 rounded-xl border border-sky-100 shadow-sm">
+                        <h4 class="font-black text-slate-800 mb-2">SO + Adjetivo</h4>
+                        <p class="text-sm text-slate-600 mb-3">Usa <b>SO</b> cuando el adjetivo está <b>solo</b>. No hay un sustantivo (cosa/persona) después.</p>
+                        <p class="font-mono text-sm bg-sky-50 p-2 rounded text-sky-800">The street was <span class="lexical-chunk">so crowded</span>.</p>
+                    </div>
+                    <div class="bg-white/80 p-4 rounded-xl border border-sky-100 shadow-sm">
+                        <h4 class="font-black text-slate-800 mb-2">VERY + Adj + (Sustantivo)</h4>
+                        <p class="text-sm text-slate-600 mb-3"><b>VERY</b> es comodín. Puede ir con el adjetivo solo, o si hay un sustantivo después.</p>
+                        <p class="font-mono text-sm bg-sky-50 p-2 rounded text-sky-800">It is a <span class="lexical-chunk">very cozy</span> cabin.</p>
+                    </div>
+                    <div class="bg-white/80 p-4 rounded-xl border border-sky-100 shadow-sm">
+                        <h4 class="font-black text-slate-800 mb-2">SUCH (A/AN) + Adj + Sustantivo</h4>
+                        <p class="text-sm text-slate-600 mb-3">Si la oración termina mencionando un sustantivo, usa <b>SUCH</b>. Usa "a/an" si es singular.</p>
+                        <p class="font-mono text-sm bg-sky-50 p-2 rounded text-sky-800">It was <span class="lexical-chunk">such a beautiful</span> trip.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Regla 2: Too vs Enough -->
+            <div class="glass-panel p-6 sm:p-8">
+                <h3 class="text-xl font-black text-rose-600 mb-4 border-b border-slate-200 pb-2">Regla 2: Too vs. Enough</h3>
+                <div class="grid sm:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-black text-slate-800 mb-2">TOO + Adjetivo (Exceso negativo)</h4>
+                        <p class="text-sm text-slate-600 mb-3">"Too" NO significa "muy". Significa <b>"demasiado"</b> (es un problema, más de lo que quiero).</p>
+                        <p class="font-mono text-sm bg-rose-50 p-2 rounded text-rose-800">The beach is <span class="font-bold">too crowded</span>. We must leave.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-black text-slate-800 mb-2">Adjetivo + ENOUGH (Suficiente)</h4>
+                        <p class="text-sm text-slate-600 mb-3">Significa la cantidad correcta. <b>OJO:</b> "Enough" siempre va <b>después</b> del adjetivo.</p>
+                        <p class="font-mono text-sm bg-emerald-50 p-2 rounded text-emerald-800">The bed is <span class="font-bold">big enough</span> for me.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Regla 3: Adjetivos Extremos -->
+            <div class="glass-panel p-6 sm:p-8 bg-slate-800 text-white">
+                <h3 class="text-xl font-black text-amber-400 mb-4 border-b border-slate-600 pb-2">Regla 3: Adjetivos Extremos</h3>
+                <p class="text-sm text-slate-300 mb-4">Algunas palabras ya significan el 100% de intensidad. Con estas palabras <b>NO puedes usar "Very" ni "So"</b>. Debes usar <b>"Absolutely"</b>.</p>
+                <div class="flex gap-4">
+                    <div class="flex-1 bg-slate-900/50 p-4 rounded-xl border border-slate-700 text-sm">
+                        <p class="text-rose-400 font-bold mb-2"><i class="fas fa-times mr-1"></i> Incorrecto (Usar Very)</p>
+                        <p>Very freezing / Very breathtaking</p>
+                    </div>
+                    <div class="flex-1 bg-slate-900/50 p-4 rounded-xl border border-slate-700 text-sm">
+                        <p class="text-emerald-400 font-bold mb-2"><i class="fas fa-check mr-1"></i> Correcto (Usar Absolutely)</p>
+                        <p>Absolutely freezing / Absolutely breathtaking</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRÁCTICA 2: EL BLOG (Dropdowns) -->
+        <section class="glass-panel p-6 sm:p-10 border border-sky-200">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-slate-200 pb-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-pen-nib text-sky-500"></i> Práctica 2: El Blog de Viajes
+                    </h2>
+                    <p class="text-slate-500 text-sm font-medium mt-1">Lee la historia y selecciona la palabra correcta en los menús desplegables.</p>
+                </div>
+                <div class="bg-sky-100 text-sky-700 font-bold px-4 py-2 rounded-xl text-sm shrink-0">5 Puntos</div>
+            </div>
+
+            <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-100 shadow-sm text-lg text-slate-700 leading-loose font-medium">
+                <p class="mb-4">
+                    My weekend trip to the mountains was amazing! We rented a 
+                    <select class="inline-select" id="drop-1" onchange="checkDropdown(this, 'very')">
+                        <option value="" disabled selected>...</option>
+                        <option value="so">so</option>
+                        <option value="such">such</option>
+                        <option value="very">very</option>
+                    </select>
+                    cozy wooden cabin near the lake. The nature there is 
+                    <select class="inline-select" id="drop-2" onchange="checkDropdown(this, 'so')">
+                        <option value="" disabled selected>...</option>
+                        <option value="so">so</option>
+                        <option value="such a">such a</option>
+                        <option value="very much">very much</option>
+                    </select>
+                    picturesque, especially early in the morning. 
+                </p>
+                <p class="mb-4">
+                    On Saturday, we visited the main village, but it was 
+                    <select class="inline-select" id="drop-3" onchange="checkDropdown(this, 'such a')">
+                        <option value="" disabled selected>...</option>
+                        <option value="so">so</option>
+                        <option value="such a">such a</option>
+                        <option value="very">very</option>
+                    </select>
+                    touristy place. The streets were 
+                    <select class="inline-select" id="drop-4" onchange="checkDropdown(this, 'so')">
+                        <option value="" disabled selected>...</option>
+                        <option value="so">so</option>
+                        <option value="such">such</option>
+                        <option value="such a">such a</option>
+                    </select>
+                    crowded that we couldn't even walk to the restaurant! 
+                </p>
+                <p>
+                    Despite the crowds, the local people were friendly. We had 
+                    <select class="inline-select" id="drop-5" onchange="checkDropdown(this, 'such')">
+                        <option value="" disabled selected>...</option>
+                        <option value="so">so</option>
+                        <option value="such">such</option>
+                        <option value="such a">such a</option>
+                    </select>
+                    good weather that we hiked all afternoon!
+                </p>
+            </div>
+        </section>
+
+        <!-- PRÁCTICA 3: INSPECTOR GRAMATICAL (True/False) -->
+        <section class="glass-panel p-6 sm:p-10 border border-purple-200">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-slate-200 pb-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-search text-purple-500"></i> Práctica 3: Inspector Gramatical
+                    </h2>
+                    <p class="text-slate-500 text-sm font-medium mt-1">¿La oración está escrita correctamente en inglés? Elige Verdadero o Falso.</p>
+                </div>
+                <div class="bg-purple-100 text-purple-700 font-bold px-4 py-2 rounded-xl text-sm shrink-0">5 Puntos</div>
+            </div>
+
+            <div class="grid sm:grid-cols-2 gap-4" id="tf-container">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- PRÁCTICA 4: QUIZ MAESTRO -->
+        <section class="glass-panel p-6 sm:p-10 border border-amber-200">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-slate-200 pb-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-fire text-amber-500"></i> Práctica 4: Quiz Final
+                    </h2>
+                    <p class="text-slate-500 text-sm font-medium mt-1">Combina vocabulario y gramática. ¡Cuidado con los Adjetivos Extremos!</p>
+                </div>
+                <div class="bg-amber-100 text-amber-700 font-bold px-4 py-2 rounded-xl text-sm shrink-0">10 Puntos</div>
+            </div>
+
+            <div id="mcq-container" class="space-y-6">
+                <!-- Injected via JS -->
+            </div>
+            
+            <!-- RESULTADOS FINALES -->
+            <div id="completion-box" class="hidden mt-12 bg-slate-800 text-white p-8 rounded-3xl text-center shadow-2xl border border-slate-700 animate-pop">
+                <i class="fas fa-crown text-6xl text-amber-400 mb-4 animate-float"></i>
+                <h2 class="text-3xl font-black mb-2">¡Práctica Completada Kaeren!</h2>
+                <p class="text-slate-300 font-medium text-lg mb-6">Has demostrado un gran dominio de las descripciones en inglés.</p>
+                <div class="text-5xl font-black text-emerald-400 mb-8"><span id="final-score-text">0</span> / 30 Pts</div>
+                <button onclick="location.reload()" class="bg-white text-slate-900 font-bold py-3 px-8 rounded-xl hover:bg-slate-200 transition-colors">
+                    Estudiar de Nuevo
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        let currentScore = 0;
+        const totalScoreElements = document.getElementById('score-display');
+        const scoreBadge = document.getElementById('score-badge');
+
+        function addScore() {
+            currentScore++;
+            totalScoreElements.innerText = currentScore;
+            
+            scoreBadge.classList.add('bg-emerald-100', 'border-emerald-300', 'text-emerald-700', 'scale-110');
+            scoreBadge.classList.remove('bg-white', 'border-slate-200', 'text-slate-700');
+            
+            setTimeout(() => {
+                scoreBadge.classList.remove('bg-emerald-100', 'border-emerald-300', 'text-emerald-700', 'scale-110');
+                scoreBadge.classList.add('bg-white', 'border-slate-200', 'text-slate-700');
+            }, 300);
+
+            checkGameEnd();
+        }
+
+        // --- DATA Y RENDER PARA VOCABULARIO (10 Puntos) ---
+        const vocabData = [
+            { q: "We walked around Rome for 10 hours today. I am completely _____.", opts: ["Crowded", "Exhausting", "Cozy"], ans: 1, exp: "Exhausting significa agotador, cansado después de mucha actividad." },
+            { q: "We couldn't sit down on the train because it was so _____. There were people everywhere.", opts: ["Breathtaking", "Boiling", "Crowded"], ans: 2, exp: "Crowded significa abarrotado, lleno de personas." },
+            { q: "When we reached the top of the mountain, the view was absolutely _____. I've never seen anything so beautiful.", opts: ["Freezing", "Touristy", "Breathtaking"], ans: 2, exp: "Breathtaking es impresionante o que 'quita el aliento' por su belleza." },
+            { q: "I don't like eating near the Eiffel Tower. It is too _____ and the restaurants are expensive.", opts: ["Touristy", "Picturesque", "Cozy"], ans: 0, exp: "Touristy se usa para lugares diseñados solo para atraer turistas." },
+            { q: "Turn on the AC! The weather outside is absolutely _____ today.", opts: ["Freezing", "Boiling", "Picturesque"], ans: 1, exp: "Boiling es un adjetivo extremo para calor sofocante (hirviendo)." },
+            { q: "We sat by the fire drinking hot chocolate while it snowed outside. It was a very _____ evening.", opts: ["Cozy", "Boiling", "Touristy"], ans: 0, exp: "Cozy describe algo cálido, cómodo y acogedor." },
+            { q: "The small village with colourful houses by the river is very _____.", opts: ["Picturesque", "Exhausting", "Freezing"], ans: 0, exp: "Picturesque significa pintoresco, digno de una pintura o foto." },
+            { q: "Put on your winter jacket and gloves! It's absolutely _____ outside.", opts: ["Boiling", "Freezing", "Cozy"], ans: 1, exp: "Freezing es un adjetivo extremo para frío helado." },
+            { q: "After climbing the volcano for 8 hours, my legs couldn't move. The activity was absolutely _____.", opts: ["Picturesque", "Freezing", "Exhausting"], ans: 2, exp: "Exhausting describe una actividad que te deja sin energía (agotadora)." },
+            { q: "The concert was so _____, I couldn't even see the stage because of all the tall people in front of me.", opts: ["Breathtaking", "Crowded", "Cozy"], ans: 1, exp: "Crowded = Abarrotado de gente." }
+        ];
+
+        let vocabAnswered = 0;
+
+        function renderVocab() {
+            const container = document.getElementById('vocab-container');
+            vocabData.forEach((item, idx) => {
+                const block = document.createElement('div');
+                block.className = "bg-white/80 p-5 rounded-2xl border border-white shadow-sm transition-all";
+                let html = `<p class="text-lg font-bold text-slate-800 mb-4"><span class="text-indigo-500 mr-2">${idx+1}.</span>${item.q}</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">`;
+                
+                const safeExp = item.exp.replace(/'/g, "\\'");
+                item.opts.forEach((opt, i) => {
+                    html += `<button onclick="handleVocab(this, ${i}, ${item.ans}, '${safeExp}')" 
+                                class="btn-interactive w-full bg-slate-50 border-2 border-slate-100 rounded-xl text-slate-700 py-3 px-4 font-semibold hover:border-indigo-300 hover:bg-indigo-50 shadow-sm">
+                                ${opt}
+                             </button>`;
+                });
+                html += `</div><div class="feedback-vocab hidden mt-4 text-sm font-medium p-3 rounded-lg"></div>`;
+                block.innerHTML = html;
+                container.appendChild(block);
+            });
+        }
+
+        window.handleVocab = function(btn, selectedIdx, correctIdx, explanation) {
+            const card = btn.closest('.bg-white\\/80');
+            if (card.dataset.answered === "true") return;
+            card.dataset.answered = "true";
+            vocabAnswered++;
+
+            const buttons = card.querySelectorAll('button');
+            buttons.forEach(b => { b.disabled = true; b.classList.add('opacity-50'); });
+            btn.classList.remove('opacity-50');
+
+            const feedback = card.querySelector('.feedback-vocab');
+            feedback.classList.remove('hidden');
+
+            if (selectedIdx === correctIdx) {
+                btn.classList.replace('bg-slate-50', 'bg-emerald-500');
+                btn.classList.replace('border-slate-100', 'border-emerald-600');
+                btn.classList.replace('text-slate-700', 'text-white');
+                feedback.innerHTML = `<i class="fas fa-check-circle mr-1"></i> <b>¡Correcto!</b> ${explanation}`;
+                feedback.className = "feedback-vocab mt-4 text-sm font-medium p-3 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 animate-pop block";
+                addScore();
+            } else {
+                card.classList.add('animate-shake');
+                btn.classList.replace('bg-slate-50', 'bg-rose-500');
+                btn.classList.replace('border-slate-100', 'border-rose-600');
+                btn.classList.replace('text-slate-700', 'text-white');
+                
+                const correctBtn = buttons[correctIdx];
+                correctBtn.classList.remove('opacity-50');
+                correctBtn.classList.replace('bg-slate-50', 'bg-emerald-100');
+                correctBtn.classList.replace('border-slate-100', 'border-emerald-400');
+                
+                feedback.innerHTML = `<i class="fas fa-times-circle mr-1"></i> <b>¡Incorrecto!</b> ${explanation}`;
+                feedback.className = "feedback-vocab mt-4 text-sm font-medium p-3 rounded-lg bg-rose-50 text-rose-800 border border-rose-200 animate-pop block";
+            }
+        };
+
+        // --- DROPDOWNS LOGIC (5 Puntos) ---
+        let dropsAnswered = 0;
+        window.checkDropdown = function(selectElement, correctAnswer) {
+            if (selectElement.dataset.answered === "true") return;
+            selectElement.dataset.answered = "true";
+            selectElement.disabled = true;
+            dropsAnswered++;
+            
+            if (selectElement.value === correctAnswer) {
+                selectElement.classList.replace('text-sky-700', 'text-emerald-700');
+                selectElement.classList.replace('border-sky-300', 'border-emerald-500');
+                selectElement.classList.replace('bg-white/50', 'bg-emerald-100');
+                addScore();
+            } else {
+                selectElement.classList.replace('text-sky-700', 'text-rose-700');
+                selectElement.classList.replace('border-sky-300', 'border-rose-500');
+                selectElement.classList.replace('bg-white/50', 'bg-rose-100');
+                
+                const correction = document.createElement('span');
+                correction.className = "text-xs font-bold text-rose-500 ml-2 absolute -mt-5 bg-white px-2 py-0.5 rounded shadow-sm border border-rose-100 animate-pop";
+                correction.innerText = correctAnswer;
+                selectElement.parentNode.insertBefore(correction, selectElement.nextSibling);
+            }
+            checkGameEnd();
+        }
+
+
+        // --- TRUE / FALSE LOGIC (5 Puntos) ---
+        const tfData = [
+            { q: "It is a so cozy cabin.", isTrue: false, exp: "Falso. Debes usar VERY antes de un Adjetivo + Sustantivo (a very cozy cabin)." },
+            { q: "The flight was so exhausting.", isTrue: true, exp: "Verdadero. SO es correcto aquí porque 'exhausting' está solo." },
+            { q: "We had such a terrible weather.", isTrue: false, exp: "Falso. 'Weather' es incontable. Debes quitar la 'a'. Correcto: 'such terrible weather'." },
+            { q: "They are such friendly people.", isTrue: true, exp: "Verdadero. SUCH + Sustantivo Plural es la estructura perfecta." },
+            { q: "The restaurant was very crowded.", isTrue: true, exp: "Verdadero. VERY funciona perfectamente como intensificador normal aquí." }
+        ];
+
+        let tfAnswered = 0;
+
+        function renderTF() {
+            const container = document.getElementById('tf-container');
+            tfData.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between";
+                let html = `
+                    <p class="font-bold text-slate-800 mb-4 text-lg">"${item.q}"</p>
+                    <div class="flex gap-3 mt-auto">
+                        <button onclick="handleTF(this, true, ${item.isTrue}, '${item.exp.replace(/'/g, "\\'")}')" class="btn-interactive flex-1 py-2 rounded-xl font-bold bg-slate-50 border-2 border-slate-200 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700"><i class="fas fa-check mr-1"></i> Verdadero</button>
+                        <button onclick="handleTF(this, false, ${item.isTrue}, '${item.exp.replace(/'/g, "\\'")}')" class="btn-interactive flex-1 py-2 rounded-xl font-bold bg-slate-50 border-2 border-slate-200 text-slate-600 hover:bg-rose-50 hover:text-rose-700"><i class="fas fa-times mr-1"></i> Falso</button>
+                    </div>
+                    <div class="feedback-tf hidden mt-3 text-sm font-medium p-3 rounded-lg bg-slate-50 border border-slate-200 text-slate-700"></div>
+                `;
+                card.innerHTML = html;
+                container.appendChild(card);
+            });
+        }
+
+        window.handleTF = function(btn, selectedAns, correctAns, explanation) {
+            const card = btn.closest('.bg-white');
+            if (card.dataset.answered === "true") return;
+            card.dataset.answered = "true";
+            tfAnswered++;
+
+            const buttons = card.querySelectorAll('button');
+            buttons.forEach(b => { b.disabled = true; b.classList.add('opacity-50'); });
+            btn.classList.remove('opacity-50');
+
+            const feedback = card.querySelector('.feedback-tf');
+            feedback.classList.remove('hidden');
+            feedback.classList.add('animate-pop');
+
+            if (selectedAns === correctAns) {
+                btn.classList.replace('bg-slate-50', 'bg-emerald-500');
+                btn.classList.replace('border-slate-200', 'border-emerald-600');
+                btn.classList.replace('text-slate-600', 'text-white');
+                feedback.innerHTML = `<i class="fas fa-check-circle text-emerald-500 mr-1"></i> ¡Excelente! ${explanation}`;
+                addScore();
+            } else {
+                btn.classList.replace('bg-slate-50', 'bg-rose-500');
+                btn.classList.replace('border-slate-200', 'border-rose-600');
+                btn.classList.replace('text-slate-600', 'text-white');
+                card.classList.add('animate-shake');
+                feedback.innerHTML = `<i class="fas fa-times-circle text-rose-500 mr-1"></i> Te equivocaste. ${explanation}`;
+            }
+        };
+
+
+        // --- MULTIPLE CHOICE LOGIC (10 Puntos) ---
+        const mcqData = [
+            { q: "We walked around Rome for 10 hours. I was _____ exhausted.", opts: ["so", "very", "absolutely"], ans: 2, exp: "Exhausted es un adjetivo extremo. Debes usar 'absolutely', no puedes usar so/very." },
+            { q: "It was _____ a breathtaking view from the top of the mountain.", opts: ["such", "so", "very"], ans: 0, exp: "Usamos SUCH + a + Adjetivo + Sustantivo (a breathtaking view)." },
+            { q: "Don't go to that restaurant. It is _____ touristy.", opts: ["too much", "so", "such"], ans: 1, exp: "SO se usa porque el adjetivo (touristy) está solo al final." },
+            { q: "The water in the lake was _____ freezing!", opts: ["absolutely", "so", "very"], ans: 0, exp: "Freezing es extremo. No puedes usar so o very con él." },
+            { q: "We stayed in a _____ picturesque village in Switzerland.", opts: ["such", "so", "very"], ans: 2, exp: "VERY se coloca antes de un adjetivo que modifica a un sustantivo (a very picturesque village)." },
+            { q: "I didn't buy the souvenirs. They were _____ expensive.", opts: ["such", "very", "so"], ans: 2, exp: "Usamos SO porque el adjetivo está solo en el predicado." },
+            { q: "It is _____ hot today. I need some water.", opts: ["so", "such", "such a"], ans: 0, exp: "Hot está solo, así que usamos SO." },
+            { q: "Yesterday was _____ boiling. We couldn't leave the hotel.", opts: ["absolutely", "very", "so"], ans: 0, exp: "Boiling es un adjetivo extremo (100% caliente). Usa absolutely." },
+            { q: "I cannot drink this coffee yet. It is _____ hot.", opts: ["enough", "too", "absolutely"], ans: 1, exp: "'Too' muestra exceso negativo (demasiado caliente para beber)." },
+            { q: "The water in the lake wasn't warm _____ to swim in.", opts: ["enough", "too", "very"], ans: 0, exp: "'Enough' siempre va DESPUÉS del adjetivo (warm enough)." }
+        ];
+
+        let mcqAnswered = 0;
+
+        function renderMCQ() {
+            const container = document.getElementById('mcq-container');
+            mcqData.forEach((item, idx) => {
+                const block = document.createElement('div');
+                block.className = "bg-white/80 p-5 rounded-2xl border border-white shadow-sm transition-all";
+                let html = `<p class="text-lg font-bold text-slate-800 mb-4"><span class="text-amber-500 mr-2">${idx+1}.</span>${item.q}</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">`;
+                
+                const safeExp = item.exp.replace(/'/g, "\\'");
+                item.opts.forEach((opt, i) => {
+                    html += `<button onclick="handleMCQ(this, ${i}, ${item.ans}, '${safeExp}')" 
+                                class="btn-interactive w-full bg-slate-50 border-2 border-slate-100 rounded-xl text-slate-700 py-3 px-4 font-semibold hover:border-amber-300 hover:bg-amber-50 shadow-sm">
+                                ${opt}
+                             </button>`;
+                });
+                html += `</div><div class="feedback-mcq hidden mt-4 text-sm font-medium p-3 rounded-lg"></div>`;
+                block.innerHTML = html;
+                container.appendChild(block);
+            });
+        }
+
+        window.handleMCQ = function(btn, selectedIdx, correctIdx, explanation) {
+            const card = btn.closest('.bg-white\\/80');
+            if (card.dataset.answered === "true") return;
+            card.dataset.answered = "true";
+            mcqAnswered++;
+
+            const buttons = card.querySelectorAll('button');
+            buttons.forEach(b => { b.disabled = true; b.classList.add('opacity-50'); });
+            btn.classList.remove('opacity-50');
+
+            const feedback = card.querySelector('.feedback-mcq');
+            feedback.classList.remove('hidden');
+
+            if (selectedIdx === correctIdx) {
+                btn.classList.replace('bg-slate-50', 'bg-emerald-500');
+                btn.classList.replace('border-slate-100', 'border-emerald-600');
+                btn.classList.replace('text-slate-700', 'text-white');
+                feedback.innerHTML = `<i class="fas fa-check-circle mr-1"></i> <b>¡Perfecto!</b> ${explanation}`;
+                feedback.className = "feedback-mcq mt-4 text-sm font-medium p-3 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 animate-pop block";
+                addScore();
+            } else {
+                card.classList.add('animate-shake');
+                btn.classList.replace('bg-slate-50', 'bg-rose-500');
+                btn.classList.replace('border-slate-100', 'border-rose-600');
+                btn.classList.replace('text-slate-700', 'text-white');
+                
+                const correctBtn = buttons[correctIdx];
+                correctBtn.classList.remove('opacity-50');
+                correctBtn.classList.replace('bg-slate-50', 'bg-emerald-100');
+                correctBtn.classList.replace('border-slate-100', 'border-emerald-400');
+                
+                feedback.innerHTML = `<i class="fas fa-times-circle mr-1"></i> <b>¡Ups!</b> ${explanation}`;
+                feedback.className = "feedback-mcq mt-4 text-sm font-medium p-3 rounded-lg bg-rose-50 text-rose-800 border border-rose-200 animate-pop block";
+            }
+        };
+
+        // --- CHECK GAME END (30 Preguntas Totales) ---
+        function checkGameEnd() {
+            const totalQuestions = vocabData.length + 5 + tfData.length + mcqData.length; // 10 + 5 + 5 + 10 = 30
+            const answered = vocabAnswered + dropsAnswered + tfAnswered + mcqAnswered;
+            
+            if (answered === totalQuestions) {
+                setTimeout(() => {
+                    document.getElementById('final-score-text').innerText = currentScore;
+                    document.getElementById('completion-box').classList.remove('hidden');
+                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                }, 800);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderVocab();
+            renderTF();
+            renderMCQ();
+        });
+    </script>
+</body>
+</html>
