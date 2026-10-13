@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Practice Lab: Very, So, Such (Extended Edition)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Lora:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap');
+        
+        :root {
+            --primary-sky: #0ea5e9;
+            --primary-indigo: #6366f1;
+            --primary-emerald: #10b981;
+            --primary-rose: #f43f5e;
+            --primary-amber: #f59e0b;
+            --bg-light: #f8fafc;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: var(--bg-light);
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 24px 24px;
+            color: #0f172a;
+            overflow-x: hidden;
+        }
+
+        .font-serif-text { font-family: 'Lora', serif; }
+
+        /* Top Progress Bar */
+        #progress-bar {
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-sky), var(--primary-indigo), var(--primary-emerald), var(--primary-rose));
+            width: 0%;
+            transition: width 0.15s ease-out;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+        /* 3D Flip Cards System */
+        .flip-card {
+            background-color: transparent;
+            perspective: 1000px;
+            cursor: pointer;
+            height: 250px; /* Optimized for mobile screens */
+            width: 100%;
+        }
+        @media (min-width: 640px) {
+            .flip-card { height: 280px; }
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+            border-radius: 1.25rem;
+            box-shadow: 0 10px 20px -5px rgba(14, 165, 233, 0.15);
+        }
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1.25rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #e2e8f0;
+        }
+        .flip-card-front { background-color: white; }
+        .flip-card-front img {
+            width: 100%;
+            height: 60%;
+            object-fit: cover;
+            border-bottom: 2px solid #e2e8f0;
+            background-color: #f1f5f9; 
+        }
+        
+        /* Card Themes */
+        .theme-sky .flip-card-back { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); border-color: #0284c7; color: white; }
+        .theme-indigo .flip-card-back { background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); border-color: #4338ca; color: white; }
+        .theme-emerald .flip-card-back { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #059669; color: white; }
+        .theme-amber .flip-card-back { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-color: #d97706; color: white; }
+        .theme-rose .flip-card-back { background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%); border-color: #be123c; color: white; }
+
+        .flip-card-back {
+            transform: rotateY(180deg);
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        /* Glass Cards & Layout */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 1.5rem;
+            box-shadow: 0 15px 35px -10px rgba(14, 165, 233, 0.15);
+        }
+
+        /* Interactive Elements */
+        .btn-modern {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 700;
+        }
+        .btn-modern:active:not(:disabled) { transform: scale(0.96); }
+        .btn-modern:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* Typing Input */
+        .type-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1.125rem; /* Prevents iOS zoom */
+            border: 2px solid #cbd5e1;
+            border-radius: 0.75rem;
+            transition: all 0.2s ease;
+            outline: none;
+            background: #f8fafc;
+            color: #0f172a;
+            font-weight: 700;
+        }
+        .type-input:focus {
+            border-color: var(--primary-sky);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
+        }
+
+        /* Animations */
+        @keyframes popIn {
+            0% { transform: scale(0.95); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop { animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        @keyframes bounce-small {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .animate-bounce-small { animation: bounce-small 2s infinite ease-in-out; }
+
+        /* Highlights */
+        .hl-very { color: #0ea5e9; font-weight: 900; }
+        .hl-so { color: #8b5cf6; font-weight: 900; }
+        .hl-such { color: #f59e0b; font-weight: 900; }
+    </style>
+</head>
+<body class="antialiased relative">
+
+    <div id="progress-bar"></div>
+
+    <!-- HEADER -->
+    <header class="h-16 sm:h-20 bg-white/95 backdrop-blur-md border-b border-sky-100 z-50 sticky top-0 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+            <div class="flex items-center gap-3 sm:gap-4">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-sky-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-sky-200 shrink-0 border-2 border-sky-700">
+                    <i class="fas fa-pencil-alt text-lg sm:text-xl"></i>
+                </div>
+                <div class="min-w-0">
+                    <h1 class="font-black text-slate-800 text-base sm:text-xl leading-tight truncate tracking-tight">Extended Practice Lab</h1>
+                    <p class="text-[10px] sm:text-xs font-bold text-sky-600 uppercase tracking-widest truncate">A2: Very, So, Such</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+                <div class="bg-indigo-50 text-indigo-600 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl font-black flex items-center gap-1.5 sm:gap-2 shadow-sm transition-transform text-sm sm:text-base border border-indigo-200" id="score-badge">
+                    <i class="fas fa-star text-indigo-500"></i> 
+                    <span><span id="score-display">0</span> XP</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full relative pb-32">
+
+        <!-- INTRO -->
+        <section class="max-w-4xl mx-auto px-4 py-12 sm:py-16 text-center">
+            <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-800 tracking-tight leading-tight mb-4">
+                Homework: <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-indigo-600 italic font-serif-text">Intensifiers Edition</span>
+            </h2>
+            <p class="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed font-medium mb-8">
+                Esta es la versión extendida del laboratorio. Tienes el <b>doble de ejercicios</b> y nuevos formatos de retos. Lee con cuidado y consigue el puntaje máximo.
+            </p>
+            <i class="fas fa-chevron-down text-3xl text-sky-400 animate-bounce-small"></i>
+        </section>
+
+        <!-- VOCABULARY REVIEW (EXPANDED TO 8 CARDS) -->
+        <section class="max-w-7xl mx-auto px-4 py-10">
+            <div class="mb-8 flex items-center gap-4">
+                <div class="w-12 h-12 bg-sky-500 text-white rounded-2xl flex items-center justify-center text-xl font-bold shrink-0 shadow-lg shadow-sky-200"><i class="fas fa-images"></i></div>
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-800">1. Expanded Vocabulary</h2>
+                    <p class="text-sm sm:text-base text-slate-600 font-medium">Haz clic en las tarjetas para repasar el significado de estos adjetivos de viaje.</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-3 sm:gap-6" id="vocab-cards-grid">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- GRAMMAR SUMMARY -->
+        <section class="max-w-5xl mx-auto px-4 py-10">
+            <div class="glass-card p-6 sm:p-8 border-t-8 border-t-indigo-500">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 text-xl"><i class="fas fa-bolt"></i></div>
+                    <h3 class="font-bold text-xl sm:text-2xl text-slate-800">2. Grammar Fast-Recap</h3>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-4 sm:gap-6">
+                    <!-- Very -->
+                    <div class="bg-sky-50 p-4 sm:p-5 rounded-2xl border border-sky-200">
+                        <h4 class="text-lg font-black text-sky-700 mb-2">VERY</h4>
+                        <p class="text-xs sm:text-sm text-slate-600 mb-3">Significa "muy". Es el más común. Puede ir solo o con sustantivo.</p>
+                        <ul class="text-xs sm:text-sm font-bold text-slate-800 space-y-1">
+                            <li><i class="fas fa-check text-emerald-500 mr-1"></i> It is <span class="hl-very">very</span> big.</li>
+                            <li><i class="fas fa-check text-emerald-500 mr-1"></i> A <span class="hl-very">very</span> big city.</li>
+                        </ul>
+                    </div>
+                    <!-- So -->
+                    <div class="bg-purple-50 p-4 sm:p-5 rounded-2xl border border-purple-200">
+                        <h4 class="text-lg font-black text-purple-700 mb-2">SO</h4>
+                        <p class="text-xs sm:text-sm text-slate-600 mb-3">Significa "tan". <b>OBLIGATORIO:</b> El adjetivo debe estar <b>solo</b>.</p>
+                        <ul class="text-xs sm:text-sm font-bold text-slate-800 space-y-1">
+                            <li><i class="fas fa-check text-emerald-500 mr-1"></i> The city is <span class="hl-so">so</span> big.</li>
+                            <li><i class="fas fa-times text-rose-500 mr-1"></i> <span class="line-through text-slate-400">It is a so big city.</span></li>
+                        </ul>
+                    </div>
+                    <!-- Such -->
+                    <div class="bg-amber-50 p-4 sm:p-5 rounded-2xl border border-amber-200">
+                        <h4 class="text-lg font-black text-amber-700 mb-2">SUCH (A)</h4>
+                        <p class="text-xs sm:text-sm text-slate-600 mb-3">Significa "un ___ tan ___". <b>OBLIGATORIO:</b> Necesita un sustantivo al final.</p>
+                        <ul class="text-xs sm:text-sm font-bold text-slate-800 space-y-1">
+                            <li><i class="fas fa-check text-emerald-500 mr-1"></i> <span class="hl-such">Such a</span> big <u>city</u>. (Singular)</li>
+                            <li><i class="fas fa-check text-emerald-500 mr-1"></i> <span class="hl-such">Such</span> nice <u>people</u>. (Plural)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+        <!-- SECTION 1: VOCABULARY MCQ (6 Questions) -->
+        <section class="max-w-4xl mx-auto px-4 py-8 border-t border-slate-200 mt-4">
+            <div class="mb-6">
+                <h3 class="text-2xl font-bold text-slate-800 flex items-center"><i class="fas fa-tasks text-sky-500 w-8"></i> Part 1: Vocabulary Checks</h3>
+                <p class="text-slate-500 font-medium ml-8">Elige el adjetivo correcto para la situación.</p>
+            </div>
+            <div id="quiz-vocab" class="space-y-4"></div>
+        </section>
+
+        <!-- SECTION 2: VERY vs SO vs SUCH MCQ (6 Questions) -->
+        <section class="max-w-4xl mx-auto px-4 py-8">
+            <div class="mb-6">
+                <h3 class="text-2xl font-bold text-slate-800 flex items-center"><i class="fas fa-random text-purple-500 w-8"></i> Part 2: Choose the Intensifier</h3>
+                <p class="text-slate-500 font-medium ml-8">Selecciona la palabra correcta analizando si hay o no un sustantivo al final.</p>
+            </div>
+            <div id="quiz-mcq" class="space-y-4"></div>
+        </section>
+
+        
+        <!-- SECTION 3: TRUE / FALSE LOGIC (5 Questions) -->
+        <section class="max-w-4xl mx-auto px-4 py-8">
+            <div class="mb-6">
+                <h3 class="text-2xl font-bold text-slate-800 flex items-center"><i class="fas fa-balance-scale text-rose-500 w-8"></i> Part 3: True or False (Grammar)</h3>
+                <p class="text-slate-500 font-medium ml-8">¿La oración está escrita correctamente? Analiza la regla.</p>
+            </div>
+            <div id="quiz-tf" class="grid sm:grid-cols-2 gap-4"></div>
+        </section>
+
+        <!-- SECTION 4: TYPE THE WORD (5 Questions) -->
+        <section class="max-w-4xl mx-auto px-4 py-8">
+            <div class="mb-6">
+                <h3 class="text-2xl font-bold text-slate-800 flex items-center"><i class="fas fa-keyboard text-emerald-500 w-8"></i> Part 4: Fill in the Blanks</h3>
+                <p class="text-slate-500 font-medium ml-8">Escribe exactamente la palabra correcta: <b>so, very, such, o such a</b>.</p>
+            </div>
+            <div id="quiz-typing" class="space-y-4"></div>
+        </section>
+
+        
+        <!-- SECTION 5: READING COMPREHENSION -->
+        <section class="max-w-5xl mx-auto px-4 py-12">
+            <div class="mb-6">
+                <h3 class="text-2xl font-bold text-slate-800 flex items-center"><i class="fas fa-book-reader text-amber-500 w-8"></i> Part 5: Reading Challenge</h3>
+                <p class="text-slate-500 font-medium ml-8">Lee la historia de viaje y contesta las preguntas de comprensión y gramática.</p>
+            </div>
+            
+            <div class="glass-card p-6 sm:p-10 border-t-8 border-t-amber-500 mb-8 bg-amber-50/30">
+                <h4 class="font-black text-xl text-slate-800 mb-4 border-b border-amber-200 pb-2">My Trip to New York 🍎</h4>
+                <div class="font-serif-text text-lg sm:text-xl leading-loose text-slate-700 space-y-4">
+                    <p>Last summer, we traveled to New York. The city is <b>so large</b> and energetic! However, the streets were <b>very crowded</b>, especially near Times Square. It was <b>such a busy</b> area that we could barely walk.</p>
+                    <p>We ate at a famous pizza place. The pizza was <b>so delicious</b>, but the drinks were <b>very expensive</b>. Despite the prices, the waiters were <b>such friendly people</b>.</p>
+                    <p>On the last day, the weather changed. It was <b>such terrible weather</b>—absolutely freezing! I didn't pack a winter coat because it was summer. Overall, it was an exhausting trip, but we had <b>such a great time</b>.</p>
+                </div>
+            </div>
+
+            <div id="quiz-reading" class="grid sm:grid-cols-2 gap-4"></div>
+        </section>
+
+        <!-- FINAL SCORE CARD -->
+        <section class="max-w-md mx-auto px-4 py-16 text-center">
+            <div class="glass-card p-8 sm:p-10 shadow-2xl border-2 border-indigo-100 bg-white">
+                <div class="w-24 h-24 bg-indigo-500 rounded-full flex items-center justify-center shadow-lg shadow-indigo-200 mx-auto mb-6">
+                    <i class="fas fa-award text-5xl text-white"></i>
+                </div>
+                <h3 class="text-2xl font-black text-slate-800 mb-2">Lab Completed!</h3>
+                <p class="text-slate-500 font-bold uppercase tracking-widest text-xs mb-4">Total XP Earned</p>
+                
+                <div class="text-6xl sm:text-7xl font-black text-slate-900 mb-6 drop-shadow-sm">
+                    <span id="final-score-display">0</span><span class="text-2xl sm:text-3xl text-slate-400">XP</span>
+                </div>
+                
+                <p class="text-indigo-600 font-bold mb-8 text-sm sm:text-base bg-indigo-50 py-2 px-4 rounded-lg inline-block border border-indigo-100">
+                    📸 ¡Toma captura de pantalla de este cuadro!
+                </p>
+                
+                <button onclick="window.scrollTo({top: 0, behavior: 'smooth'}); setTimeout(()=>location.reload(), 500);" class="btn-modern bg-slate-900 hover:bg-slate-800 text-white rounded-xl w-full py-4 text-lg shadow-lg shadow-slate-300">
+                    <i class="fas fa-redo-alt mr-2"></i> Reiniciar Práctica
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. DATA: VOCABULARY CARDS (8 Items) ---
+        const vocabData = [
+            { id: "Crowded", trans: "Lleno de gente / Atestado", img: "https://images.unsplash.com/photo-1517713982677-4b66332f98de?w=400&q=80", theme: "theme-sky" },
+            { id: "Beautiful", trans: "Hermoso / Precioso", img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400&q=80", theme: "theme-emerald" },
+            { id: "Expensive", trans: "Caro / Costoso", img: "https://images.unsplash.com/photo-1580519542036-ed47c0ceeb08?w=400&q=80", theme: "theme-amber" },
+            { id: "Friendly", trans: "Amigable / Simpático", img: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&q=80", theme: "theme-indigo" },
+            { id: "Exhausting", trans: "Agotador", img: "https://images.unsplash.com/photo-1498555132961-f09b52a4f4d2?w=400&q=80", theme: "theme-rose" },
+            { id: "Cozy", trans: "Acogedor / Cómodo", img: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&q=80", theme: "theme-amber" },
+            { id: "Freezing", trans: "Helado / Congelado", img: "https://images.unsplash.com/photo-1517361265-3ebdfec5d4e1?w=400&q=80", theme: "theme-sky" },
+            { id: "Touristy", trans: "Demasiado turístico", img: "https://images.unsplash.com/photo-1533105079780-92b9be482077?w=400&q=80", theme: "theme-rose" }
+        ];
+
+        // --- 2. DATA: QUIZZES ---
+        const quizVocab = [
+            { q: "There are 500 people in this small museum! It is very _____.", opts: ["cozy", "crowded", "friendly"], ans: 1, exp: "Crowded = Lleno de gente." },
+            { q: "After walking 20 kilometers, I need to sleep. This trip is _____.", opts: ["exhausting", "touristy", "freezing"], ans: 0, exp: "Exhausting = Agotador." },
+            { q: "This restaurant charges $100 for a hamburger. It is too _____.", opts: ["beautiful", "friendly", "expensive"], ans: 2, exp: "Expensive = Caro." },
+            { q: "The people in this town always smile and help you. They are very _____.", opts: ["friendly", "exhausting", "touristy"], ans: 0, exp: "Friendly = Amigable." },
+            { q: "I love this small, warm cabin with a fireplace. It is so _____.", opts: ["crowded", "cozy", "expensive"], ans: 1, exp: "Cozy = Acogedor." },
+            { q: "Wear a jacket! The weather outside is _____ today.", opts: ["freezing", "beautiful", "touristy"], ans: 0, exp: "Freezing = Helado." }
+        ];
+
+        const quizMCQ = [
+            { q: "It is a _____ hot day today. Let's go to the pool.", opts: ["very", "so", "such"], ans: 0, exp: "'Very' puede ir con 'a [adj] [noun]'." },
+            { q: "The hotel pool was _____ beautiful!", opts: ["so", "such a", "such"], ans: 0, exp: "El adjetivo (beautiful) está solo al final, usamos 'So'." },
+            { q: "Rome is _____ historical city.", opts: ["so", "such", "such a"], ans: 2, exp: "Hay un sustantivo singular (city), usamos 'Such a'." },
+            { q: "They are _____ nice people. They paid for our dinner.", opts: ["such a", "such", "so"], ans: 1, exp: "Hay un sustantivo plural (people), usamos 'Such'." },
+            { q: "Why is the flight ticket _____ expensive?", opts: ["such", "so", "such a"], ans: 1, exp: "El adjetivo (expensive) está solo, usamos 'So'." },
+            { q: "We had _____ terrible trip. Our bags were lost.", opts: ["so", "very", "such a"], ans: 2, exp: "Hay un sustantivo singular (trip), usamos 'Such a'." }
+        ];
+
+        const quizTF = [
+            { q: "The food was so delicious.", opts: ["True", "False"], ans: 0, exp: "Correcto. El adjetivo (delicious) está solo, usa 'so'." },
+            { q: "It is so a beautiful day.", opts: ["True", "False"], ans: 1, exp: "Incorrecto. Debería ser 'such a beautiful day'." },
+            { q: "They have such a good friends.", opts: ["True", "False"], ans: 1, exp: "Incorrecto. 'Friends' es plural, no se usa 'a'. Debería ser 'such good friends'." },
+            { q: "This is a very old museum.", opts: ["True", "False"], ans: 0, exp: "Correcto. 'Very' se puede usar en la estructura 'a very [adj] [noun]'." },
+            { q: "The beach is such crowded.", opts: ["True", "False"], ans: 1, exp: "Incorrecto. El adjetivo está solo, debería ser 'so crowded'." }
+        ];
+
+        const quizTyping = [
+            { q: "The mountains in Switzerland are _____ beautiful.", ans: ["so", "very"], exp: "Ambas 'so' o 'very' son correctas aquí porque el adjetivo está solo." },
+            { q: "It was _____ long flight! (14 hours)", ans: ["such a"], exp: "Hay un sustantivo singular (flight)." },
+            { q: "We met _____ interesting people on the tour.", ans: ["such"], exp: "Hay un sustantivo plural (people), sin 'a'." },
+            { q: "Why is this coffee _____ cold?", ans: ["so", "very"], exp: "Ambas son posibles al estar el adjetivo solo." },
+            { q: "This is a _____ old building.", ans: ["very"], exp: "La estructura 'a ___ old building' requiere 'very'." }
+        ];
+
+        const quizReading = [
+            { q: "According to the text, why couldn't they walk easily?", opts: ["The streets were very crowded.", "The weather was terrible.", "The city was so large."], ans: 0, exp: "El texto dice 'the streets were very crowded... we could barely walk'." },
+            { q: "Which grammar rule explains: 'such friendly people'?", opts: ["Adjective alone", "Adjective + Singular Noun", "Adjective + Plural Noun"], ans: 2, exp: "'People' es un sustantivo plural, por eso se usa 'such' sin 'a'." },
+            { q: "What was the problem with the pizza place?", opts: ["The pizza was bad.", "The drinks were very expensive.", "The waiters were rude."], ans: 1, exp: "El texto dice 'the drinks were very expensive'." },
+            { q: "Why was the weather terrible?", opts: ["It was very hot.", "It was absolutely freezing.", "It was raining."], ans: 1, exp: "El texto dice 'absolutely freezing!'." }
+        ];
+
+        // --- 3. CORE ENGINE & LOGIC ---
+        let currentScore = 0;
+        let comboCounter = 0; // Robust scoring logic
+
+        function addScore(basePoints) {
+            comboCounter++;
+            let multiplier = comboCounter >= 3 ? 1.5 : 1;
+            if (comboCounter >= 5) multiplier = 2; // Extra bonus for long streaks
+            
+            let pointsEarned = Math.floor(basePoints * multiplier);
+            currentScore += pointsEarned;
+            
+            document.getElementById('score-display').innerText = currentScore;
+            document.getElementById('final-score-display').innerText = currentScore;
+            
+            const badge = document.getElementById('score-badge');
+            badge.classList.add('scale-110', 'bg-emerald-100', 'text-emerald-700', 'border-emerald-300');
+            badge.classList.remove('bg-indigo-50', 'text-indigo-600', 'border-indigo-200');
+            setTimeout(() => {
+                badge.classList.remove('scale-110', 'bg-emerald-100', 'text-emerald-700', 'border-emerald-300');
+                badge.classList.add('bg-indigo-50', 'text-indigo-600', 'border-indigo-200');
+            }, 300);
+
+            return { points: pointsEarned, multi: multiplier };
+        }
+
+        function resetCombo() {
+            comboCounter = 0;
+        }
+
+        function showFeedback(container, isCorrect, feedbackHTML) {
+            const feedbackEl = container.querySelector('.feedback-msg');
+            feedbackEl.innerHTML = feedbackHTML;
+            feedbackEl.classList.remove('hidden');
+            if(isCorrect) {
+                feedbackEl.className = `feedback-msg mt-4 p-4 rounded-xl text-emerald-900 bg-emerald-50 border border-emerald-200 animate-pop block text-sm sm:text-base font-medium`;
+            } else {
+                feedbackEl.className = `feedback-msg mt-4 p-4 rounded-xl text-rose-900 bg-rose-50 border border-rose-200 animate-pop block text-sm sm:text-base font-medium`;
+            }
+        }
+
+        // Render Vocab Cards
+        function renderCards() {
+            const grid = document.getElementById('vocab-cards-grid');
+            let html = '';
+            vocabData.forEach(item => {
+                html += `
+                <div class="flip-card ${item.theme}" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <img src="${item.img}" alt="${item.id}" loading="lazy">
+                            <div class="flex flex-col items-center justify-center flex-grow p-2">
+                                <h3 class="font-black text-lg sm:text-xl text-slate-800">${item.id}</h3>
+                            </div>
+                        </div>
+                        <div class="flip-card-back text-center">
+                            <h3 class="font-black text-xl sm:text-2xl mb-2">${item.id}</h3>
+                            <p class="font-bold text-sm sm:text-base text-white/95">${item.trans}</p>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            grid.innerHTML = html;
+        }
+
+        // Render Standard Multiple Choice
+        function renderMCQ(containerId, data) {
+            const container = document.getElementById(containerId);
+            data.forEach((item, idx) => {
+                const block = document.createElement('div');
+                block.dataset.answered = "false";
+                block.className = `glass-card p-5 sm:p-6 relative border border-slate-200 shadow-sm transition-all duration-300`;
+                
+                let htmlStr = `<p class="text-base sm:text-lg font-bold text-slate-800 mb-4">${idx+1}. ${item.q}</p>
+                               <div class="grid grid-cols-1 sm:grid-cols-${item.opts.length} gap-2 sm:gap-3">`;
+                
+                item.opts.forEach((opt, i) => {
+                    const safeExp = item.exp.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+                    htmlStr += `<button onclick="handleMCQ(this, ${i}, ${item.ans}, '${safeExp}')" 
+                                class="btn-modern w-full bg-slate-50 border-2 border-slate-200 rounded-xl text-slate-700 py-3 px-3 text-center hover:border-sky-400 hover:text-sky-700 hover:bg-sky-50 shadow-sm">
+                                ${opt}
+                                </button>`;
+                });
+                
+                htmlStr += `</div><div class="feedback-msg hidden mt-3"></div>`;
+                block.innerHTML = htmlStr;
+                container.appendChild(block);
+            });
+        }
+
+        // Render True/False (Grid Layout difference)
+        function renderTF(containerId, data) {
+            renderMCQ(containerId, data); // Uses same robust logic as MCQ
+        }
+
+        window.handleMCQ = function(btn, selectedIdx, correctIdx, explanation) {
+            const block = btn.closest('.glass-card');
+            if (block.dataset.answered === "true") return;
+            block.dataset.answered = "true";
+
+            const buttons = block.querySelectorAll('button');
+            buttons.forEach(b => {
+                b.disabled = true;
+                b.classList.remove('hover:border-sky-400', 'hover:text-sky-700', 'hover:bg-sky-50', 'cursor-pointer');
+                b.classList.add('opacity-60', 'cursor-not-allowed');
+            });
+
+            btn.classList.remove('opacity-60');
+
+            if (selectedIdx === correctIdx) {
+                const result = addScore(10);
+                btn.classList.replace('bg-slate-50', 'bg-emerald-500');
+                btn.classList.replace('border-slate-200', 'border-emerald-600');
+                btn.classList.replace('text-slate-700', 'text-white');
+                
+                let multiBadge = result.multi > 1 ? `<span class="bg-amber-200 text-amber-800 text-xs px-2 py-0.5 rounded-md ml-2 font-black border border-amber-300">Combo x${result.multi}</span>` : '';
+                showFeedback(block, true, `<div class="font-bold text-lg mb-1"><i class="fas fa-check-circle mr-1"></i> Correct! +${result.points}XP ${multiBadge}</div><div class="text-sm opacity-90">${explanation}</div>`);
+            } else {
+                resetCombo();
+                btn.classList.replace('bg-slate-50', 'bg-rose-500');
+                btn.classList.replace('border-slate-200', 'border-rose-600');
+                btn.classList.replace('text-slate-700', 'text-white');
+                
+                const correctBtn = buttons[correctIdx];
+                correctBtn.classList.remove('opacity-60');
+                correctBtn.classList.replace('bg-slate-50', 'bg-emerald-50');
+                correctBtn.classList.replace('border-slate-200', 'border-emerald-400');
+                correctBtn.classList.replace('text-slate-700', 'text-emerald-800');
+                
+                showFeedback(block, false, `<div class="font-bold text-lg mb-1"><i class="fas fa-times-circle mr-1"></i> Incorrect</div><div class="text-sm opacity-90">${explanation}</div>`);
+            }
+        };
+
+        // Render Typing Challenge
+        function renderTyping(containerId, data) {
+            const container = document.getElementById(containerId);
+            data.forEach((item, idx) => {
+                const block = document.createElement('div');
+                block.dataset.answered = "false";
+                block.className = `glass-card p-5 sm:p-6 relative border border-slate-200 shadow-sm`;
+                
+                // Convert valid answers array to string for the data attribute
+                const ansString = item.ans.join("|");
+                const safeExp = item.exp.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+
+                let htmlStr = `<p class="text-base sm:text-lg font-bold text-slate-800 mb-4">${idx+1}. ${item.q}</p>
+                               <div class="flex flex-col sm:flex-row gap-3">
+                                   <input type="text" class="type-input flex-grow" placeholder="Type answer here..." onkeypress="handleEnter(event, this)">
+                                   <button onclick="handleTypeSubmit(this, '${ansString}', '${safeExp}')" 
+                                    class="btn-modern bg-slate-800 text-white border-2 border-slate-900 rounded-xl py-3 px-6 text-center hover:bg-slate-700 shadow-md shrink-0">
+                                    Check
+                                   </button>
+                               </div>
+                               <div class="feedback-msg hidden mt-4"></div>`;
+                
+                block.innerHTML = htmlStr;
+                container.appendChild(block);
+            });
+        }
+
+        window.handleEnter = function(e, inputEl) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                inputEl.nextElementSibling.click(); // Trigger Check button
+            }
+        }
+
+        window.handleTypeSubmit = function(btn, validAnswersStr, explanation) {
+            const block = btn.closest('.glass-card');
+            if (block.dataset.answered === "true") return;
+            
+            const input = block.querySelector('.type-input');
+            const userAnswer = input.value.trim().toLowerCase();
+            
+            if (userAnswer === "") {
+                // Flash input if empty
+                input.classList.add('border-rose-400', 'bg-rose-50');
+                setTimeout(() => input.classList.remove('border-rose-400', 'bg-rose-50'), 400);
+                return;
+            }
+
+            block.dataset.answered = "true";
+            const validAnswers = validAnswersStr.split("|");
+            
+            input.disabled = true;
+            btn.disabled = true;
+
+            // Check if user answer matches any of the valid answers
+            if (validAnswers.includes(userAnswer)) {
+                const result = addScore(15); // Slightly more points for typing
+                input.classList.replace('border-cbd5e1', 'border-emerald-500');
+                input.classList.add('bg-emerald-50', 'text-emerald-800');
+                btn.classList.replace('bg-slate-800', 'bg-emerald-600');
+                btn.classList.replace('border-slate-900', 'border-emerald-700');
+                
+                let multiBadge = result.multi > 1 ? `<span class="bg-amber-200 text-amber-800 text-xs px-2 py-0.5 rounded-md ml-2 font-black border border-amber-300">Combo x${result.multi}</span>` : '';
+                showFeedback(block, true, `<div class="font-bold text-lg mb-1"><i class="fas fa-check-circle mr-1"></i> Correct! +${result.points}XP ${multiBadge}</div><div class="text-sm opacity-90">${explanation}</div>`);
+            } else {
+                resetCombo();
+                input.classList.replace('border-cbd5e1', 'border-rose-500');
+                input.classList.add('bg-rose-50', 'text-rose-800');
+                btn.classList.replace('bg-slate-800', 'bg-rose-600');
+                btn.classList.replace('border-slate-900', 'border-rose-700');
+                
+                showFeedback(block, false, `<div class="font-bold text-lg mb-1"><i class="fas fa-times-circle mr-1"></i> Incorrect</div><div class="text-sm opacity-90">Correct answer(s): <b>${validAnswers.join(' / ')}</b>.<br>${explanation}</div>`);
+            }
+        };
+
+        // --- 4. INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCards();
+            renderMCQ('quiz-vocab', quizVocab);
+            renderMCQ('quiz-mcq', quizMCQ);
+            renderTF('quiz-tf', quizTF);
+            renderTyping('quiz-typing', quizTyping);
+            renderMCQ('quiz-reading', quizReading);
+        });
+
+        // Progress bar scroll listener
+        window.addEventListener('scroll', () => {
+            const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progress-bar').style.width = scrolled + "%";
+        });
+    </script>
+</body>
+</html>
