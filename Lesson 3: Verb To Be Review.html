@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Verb To Be Lab: Present & Past</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;700;900&display=swap');
+        
+        :root {
+            --primary-sky: #0ea5e9;
+            --primary-indigo: #6366f1;
+            --primary-emerald: #10b981;
+            --primary-rose: #f43f5e;
+            --primary-amber: #f59e0b;
+            --primary-purple: #a855f7;
+            --bg-light: #f8fafc;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: var(--bg-light);
+            background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+            background-size: 30px 30px;
+            color: #0f172a;
+            overflow-x: hidden;
+        }
+
+        .font-heading { font-family: 'Space Grotesk', sans-serif; }
+
+        #progress-bar {
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-sky), var(--primary-indigo), var(--primary-purple), var(--primary-rose), var(--primary-amber));
+            width: 0%;
+            transition: width 0.15s ease-out;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        /* Flip Cards */
+        .flip-card {
+            background-color: transparent;
+            perspective: 1000px;
+            cursor: pointer;
+            height: 240px; 
+            width: 100%;
+        }
+        @media (min-width: 640px) { .flip-card { height: 260px; } }
+        
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.15);
+        }
+        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 3px solid #e2e8f0;
+            background-color: white;
+        }
+        .flip-card-front img {
+            width: 100%;
+            height: 60%;
+            object-fit: cover;
+            border-bottom: 3px solid #e2e8f0;
+            background-color: #f1f5f9; 
+            transition: transform 0.3s ease;
+        }
+        .flip-card:hover .flip-card-front img { transform: scale(1.05); }
+        
+        .theme-sky .flip-card-back { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); border-color: #0284c7; color: white; }
+        .theme-indigo .flip-card-back { background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); border-color: #4338ca; color: white; }
+        .theme-emerald .flip-card-back { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #059669; color: white; }
+        .theme-amber .flip-card-back { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-color: #d97706; color: white; }
+        .theme-rose .flip-card-back { background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%); border-color: #be123c; color: white; }
+        .theme-purple .flip-card-back { background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%); border-color: #7e22ce; color: white; }
+
+        .flip-card-back {
+            transform: rotateY(180deg);
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 1.5rem;
+            box-shadow: 0 15px 35px -10px rgba(99, 102, 241, 0.15);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* Buttons & Inputs */
+        .btn-modern { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); font-weight: 700; }
+        .btn-modern:active:not(:disabled) { transform: scale(0.96); }
+        .btn-modern:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .play-btn {
+            background-color: #fde047;
+            border: 3px solid #000;
+            border-radius: 50%;
+            width: 44px; height: 44px;
+            display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 3px 3px 0px #000;
+            transition: all 0.1s ease; flex-shrink: 0; color: #000;
+        }
+        .play-btn:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px #000; }
+
+        .type-input {
+            width: 100%; padding: 0.85rem 1.2rem; font-size: 1.125rem;
+            border: 3px solid #e2e8f0; border-radius: 1rem;
+            transition: all 0.2s ease; outline: none;
+            background: #f8fafc; color: #0f172a; font-weight: 700;
+        }
+        .type-input:focus {
+            border-color: var(--primary-indigo); background: white;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+        }
+
+        .translation-box { display: none; animation: fadeIn 0.3s ease; }
+        .translation-box.active { display: block; }
+
+        @keyframes popIn { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .animate-pop { animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes bounce-small { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        .animate-bounce-small { animation: bounce-small 2s infinite ease-in-out; }
+
+        .hl-am { color: #0ea5e9; font-weight: 900; }
+        .hl-is { color: #f43f5e; font-weight: 900; }
+        .hl-are { color: #10b981; font-weight: 900; }
+        .hl-was { color: #a855f7; font-weight: 900; }
+        .hl-were { color: #f59e0b; font-weight: 900; }
+    </style>
+</head>
+<body class="antialiased relative">
+
+    <div id="progress-bar"></div>
+
+    <!-- HEADER -->
+    <header class="h-16 sm:h-20 bg-white/95 backdrop-blur-md border-b border-slate-200 z-50 sticky top-0 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+            <div class="flex items-center gap-3 sm:gap-4">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 shrink-0 border-2 border-indigo-700">
+                    <i class="fas fa-layer-group text-lg sm:text-xl"></i>
+                </div>
+                <div class="min-w-0">
+                    <h1 class="font-heading font-black text-slate-800 text-lg sm:text-xl leading-tight truncate tracking-tight">To Be Lab</h1>
+                    <p class="text-[10px] sm:text-xs font-bold text-indigo-600 uppercase tracking-widest truncate">Present & Past Simple</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+                <div class="bg-amber-100 text-amber-700 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl font-black flex items-center gap-1.5 sm:gap-2 shadow-sm transition-transform text-sm sm:text-base border-2 border-amber-300" id="score-badge">
+                    <i class="fas fa-star text-amber-500"></i> 
+                    <span><span id="score-display">0</span> XP</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full relative pb-32">
+
+        <!-- SECTION 1: INTRO -->
+        <section id="s1-intro" class="max-w-4xl mx-auto px-4 py-12 sm:py-16 text-center">
+            <h2 class="font-heading text-4xl sm:text-5xl md:text-6xl font-black text-slate-800 tracking-tight leading-tight mb-4">
+                Mastering <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">"To Be"</span>
+            </h2>
+            <p class="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed font-medium mb-6">
+                El verbo más importante del inglés significa <b>Ser o Estar</b>. En este laboratorio interactivo (para resolver juntos en clase) dominarás sus reglas en Presente y Pasado. ¡Comencemos!
+            </p>
+            <i class="fas fa-chevron-down text-3xl text-indigo-400 animate-bounce-small"></i>
+        </section>
+
+        <!-- SECTION 2: VOCABULARY FEELINGS -->
+        <section id="s2-vocab-feelings" class="max-w-7xl mx-auto px-4 py-10">
+            <div class="mb-8 flex items-center gap-4">
+                <div class="w-14 h-14 bg-rose-500 text-white rounded-2xl flex items-center justify-center text-2xl font-bold shrink-0 shadow-lg shadow-rose-200 border-2 border-rose-600"><i class="fas fa-smile-beam"></i></div>
+                <div>
+                    <h2 class="font-heading text-2xl sm:text-3xl font-black text-slate-800">Section 2: Feelings & States</h2>
+                    <p class="text-sm sm:text-base text-slate-600 font-medium">Clase: Toquen la tarjeta para ver el significado y repitan la pronunciación juntos.</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-5" id="grid-feelings"></div>
+        </section>
+
+        <!-- SECTION 3: VOCABULARY PLACES -->
+        <section id="s3-vocab-places" class="max-w-7xl mx-auto px-4 py-10">
+            <div class="mb-8 flex items-center gap-4">
+                <div class="w-14 h-14 bg-emerald-500 text-white rounded-2xl flex items-center justify-center text-2xl font-bold shrink-0 shadow-lg shadow-emerald-200 border-2 border-emerald-600"><i class="fas fa-map-marker-alt"></i></div>
+                <div>
+                    <h2 class="font-heading text-2xl sm:text-3xl font-black text-slate-800">Section 3: Places</h2>
+                    <p class="text-sm sm:text-base text-slate-600 font-medium">Lugares comunes. Recuerden que en inglés usamos "at" para hablar de lugares o eventos específicos.</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-5" id="grid-places"></div>
+        </section>
+
+        <!-- SECTION 4: GRAMMAR PRESENT -->
+        <section id="s4-grammar-present" class="max-w-5xl mx-auto px-4 py-10">
+            <div class="glass-card p-6 sm:p-10 border-t-8 border-t-sky-500 bg-sky-50/20">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 bg-sky-100 rounded-full flex items-center justify-center text-sky-600 text-2xl border-2 border-sky-200"><i class="fas fa-sun"></i></div>
+                    <h3 class="font-heading font-black text-2xl sm:text-3xl text-slate-800">Section 4: Present Simple (Hoy, Ahora)</h3>
+                </div>
+                
+                <div class="bg-white p-4 rounded-xl border border-sky-200 mb-6 shadow-sm">
+                    <p class="text-slate-700 font-bold text-center text-lg">Estructura Positiva: <br class="sm:hidden"><span class="text-sky-600">Sujeto</span> + <span class="text-rose-500">am/is/are</span> + <span class="text-emerald-600">Complemento (Lugar o Sentimiento)</span></p>
+                </div>
+
+                <p class="text-slate-700 font-medium mb-6">El verbo To Be en presente se divide en tres formas. Analicemos juntos cuál le corresponde a cada pronombre:</p>
+                
+                <div class="grid md:grid-cols-3 gap-4 sm:gap-6">
+                    <div class="bg-white p-5 rounded-2xl border-2 border-sky-200 shadow-sm">
+                        <h4 class="font-heading text-2xl font-black text-sky-700 mb-4 text-center border-b pb-2">AM</h4>
+                        <p class="text-center font-bold text-slate-800 text-xl">I <span class="hl-am">am</span></p>
+                        <p class="text-center text-sm text-slate-500 mt-2">I am happy.<br>(Yo soy / estoy)</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border-2 border-rose-200 shadow-sm">
+                        <h4 class="font-heading text-2xl font-black text-rose-700 mb-4 text-center border-b pb-2">IS <span class="text-sm font-normal">(Singular)</span></h4>
+                        <p class="text-center font-bold text-slate-800 text-xl">He / She / It <span class="hl-is">is</span></p>
+                        <p class="text-center text-sm text-slate-500 mt-2">She is at school.<br>(Él/Ella/Eso es / está)</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border-2 border-emerald-200 shadow-sm">
+                        <h4 class="font-heading text-2xl font-black text-emerald-700 mb-4 text-center border-b pb-2">ARE <span class="text-sm font-normal">(Plural)</span></h4>
+                        <p class="text-center font-bold text-slate-800 text-xl">You / We / They <span class="hl-are">are</span></p>
+                        <p class="text-center text-sm text-slate-500 mt-2">They are tired.<br>(Tú/Nosotros/Ellos son / están)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: GRAMMAR PAST -->
+        <section id="s5-grammar-past" class="max-w-5xl mx-auto px-4 py-10">
+            <div class="glass-card p-6 sm:p-10 border-t-8 border-t-purple-500 bg-purple-50/20">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-2xl border-2 border-purple-200"><i class="fas fa-moon"></i></div>
+                    <h3 class="font-heading font-black text-2xl sm:text-3xl text-slate-800">Section 5: Past Simple (Ayer, Antes)</h3>
+                </div>
+                
+                <div class="bg-white p-4 rounded-xl border border-purple-200 mb-6 shadow-sm">
+                    <p class="text-slate-700 font-bold text-center text-lg">Estructura Positiva (Pasado): <br class="sm:hidden"><span class="text-purple-600">Sujeto</span> + <span class="text-amber-500">was/were</span> + <span class="text-emerald-600">Complemento</span></p>
+                </div>
+
+                <p class="text-slate-700 font-medium mb-6">¡En el pasado es más fácil! Solo hay dos formas: <b>was</b> para los singulares y <b>were</b> para los plurales y el pronombre 'You'.</p>
+                
+                <div class="grid md:grid-cols-2 gap-4 sm:gap-6">
+                    <div class="bg-white p-5 rounded-2xl border-2 border-purple-200 shadow-sm">
+                        <h4 class="font-heading text-2xl font-black text-purple-700 mb-4 text-center border-b pb-2">WAS <span class="text-sm font-normal">(Singulares)</span></h4>
+                        <p class="text-center font-bold text-slate-800 text-xl">I / He / She / It <span class="hl-was">was</span></p>
+                        <p class="text-center text-sm text-slate-500 mt-2">I was sick yesterday.<br>(Yo era / estaba)</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border-2 border-amber-200 shadow-sm">
+                        <h4 class="font-heading text-2xl font-black text-amber-700 mb-4 text-center border-b pb-2">WERE <span class="text-sm font-normal">(Plurales)</span></h4>
+                        <p class="text-center font-bold text-slate-800 text-xl">You / We / They <span class="hl-were">were</span></p>
+                        <p class="text-center text-sm text-slate-500 mt-2">We were at the park.<br>(Nosotros éramos / estábamos)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: GRAMMAR NEG & QUEST -->
+        <section id="s6-grammar-neg-quest" class="max-w-5xl mx-auto px-4 py-10">
+            <div class="glass-card p-6 sm:p-10 border-t-8 border-t-indigo-500 bg-indigo-50/20">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 text-2xl border-2 border-indigo-200"><i class="fas fa-exchange-alt"></i></div>
+                    <h3 class="font-heading font-black text-2xl sm:text-3xl text-slate-800">Section 6: Negatives & Questions</h3>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="font-black text-xl text-slate-800 mb-3"><i class="fas fa-minus-circle text-rose-500"></i> Negatives (Añadir NOT)</h4>
+                        <p class="text-sm text-slate-600 mb-3">Para decir "no soy" o "no estaba", solo agregamos <b>not</b> al verbo To Be. Normalmente lo contraemos (los juntamos).</p>
+                        <ul class="space-y-2 bg-white p-4 rounded-xl border border-slate-200">
+                            <li class="flex justify-between"><span class="font-bold">is not</span> ➔ <span class="font-black text-rose-600">isn't</span></li>
+                            <li class="flex justify-between"><span class="font-bold">are not</span> ➔ <span class="font-black text-rose-600">aren't</span></li>
+                            <li class="flex justify-between"><span class="font-bold">was not</span> ➔ <span class="font-black text-rose-600">wasn't</span></li>
+                            <li class="flex justify-between"><span class="font-bold">were not</span> ➔ <span class="font-black text-rose-600">weren't</span></li>
+                            <hr class="my-2 border-slate-200">
+                            <li class="text-sm text-sky-600 font-bold">* Importante: "am not" NO se puede juntar como "amn't". Se contrae el sujeto: <b>I'm not</b>.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-black text-xl text-slate-800 mb-3"><i class="fas fa-question-circle text-amber-500"></i> Questions (Cambio de orden)</h4>
+                        <p class="text-sm text-slate-600 mb-3">En español usamos el símbolo "¿" al inicio. En inglés, movemos el Verbo To Be al principio de la oración.</p>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200">
+                            <p class="font-medium text-slate-500 text-xs mb-1">Afirmación ➔ Pregunta</p>
+                            <p class="font-bold"><span class="line-through text-slate-400 mr-2">You are ready.</span> <br>➔ <span class="text-indigo-600 text-lg">Are you</span> ready?</p>
+                            
+                            <hr class="my-3 border-slate-200">
+                            
+                            <p class="font-medium text-slate-500 text-xs mb-1">Afirmación ➔ Pregunta</p>
+                            <p class="font-bold"><span class="line-through text-slate-400 mr-2">He was at home.</span> <br>➔ <span class="text-indigo-600 text-lg">Was he</span> at home?</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 7: PRACTICE PRESENT -->
+        <section id="s7-practice-present" class="max-w-4xl mx-auto px-4 py-8 border-t border-slate-200 mt-4">
+            <div class="mb-6">
+                <h3 class="font-heading text-2xl font-black text-slate-800 flex items-center"><i class="fas fa-sun text-sky-500 w-8"></i> Section 7: Present Practice</h3>
+                <p class="text-slate-500 font-medium ml-8">Léanlo en voz alta en grupo y elijan <b>am, is, o are</b>.</p>
+            </div>
+            <div id="quiz-present" class="space-y-4"></div>
+        </section>
+
+        <!-- SECTION 8: PRACTICE PAST -->
+        <section id="s8-practice-past" class="max-w-4xl mx-auto px-4 py-8">
+            <div class="mb-6">
+                <h3 class="font-heading text-2xl font-black text-slate-800 flex items-center"><i class="fas fa-moon text-purple-500 w-8"></i> Section 8: Past Practice</h3>
+                <p class="text-slate-500 font-medium ml-8">Recuerden analizar si el sujeto es singular o plural. Eligen <b>was o were</b>.</p>
+            </div>
+            <div id="quiz-past" class="space-y-4"></div>
+        </section>
+
+        <!-- SECTION 9: PRACTICE MIX (TIME EXP) -->
+        <section id="s9-practice-mix" class="max-w-4xl mx-auto px-4 py-8">
+            <div class="mb-6">
+                <h3 class="font-heading text-2xl font-black text-slate-800 flex items-center"><i class="fas fa-hourglass-half text-amber-500 w-8"></i> Section 9: Time Travel</h3>
+                <p class="text-slate-500 font-medium ml-8">Clase, fíjense en las palabras de tiempo (today, yesterday, now, last week). ¿La primera parte es presente o pasado?</p>
+            </div>
+            <div id="quiz-mix" class="space-y-4"></div>
+        </section>
+
+        <!-- SECTION 10: PRACTICE NEGATIVE -->
+        <section id="s10-practice-neg" class="max-w-4xl mx-auto px-4 py-8">
+            <div class="mb-6">
+                <h3 class="font-heading text-2xl font-black text-slate-800 flex items-center"><i class="fas fa-keyboard text-emerald-500 w-8"></i> Section 10: Make it Negative</h3>
+                <p class="text-slate-500 font-medium ml-8">Conviertan la oración. Escriban la forma <b>negativa contraída</b> (isn't, aren't, wasn't, weren't, 'm not).</p>
+            </div>
+            <div id="quiz-neg" class="space-y-4"></div>
+        </section>
+
+        <!-- SECTION 11: PRACTICE QUESTIONS -->
+        <section id="s11-practice-quest" class="max-w-4xl mx-auto px-4 py-8">
+            <div class="mb-6">
+                <h3 class="font-heading text-2xl font-black text-slate-800 flex items-center"><i class="fas fa-question text-rose-500 w-8"></i> Section 11: Ask the Question</h3>
+                <p class="text-slate-500 font-medium ml-8">Completen la pregunta correctamente moviendo el verbo To Be al principio.</p>
+            </div>
+            <div id="quiz-quest" class="space-y-4"></div>
+        </section>
+
+        <!-- SECTION 12: CLASS DIALOGUE -->
+        <section id="s12-class-dialogue" class="max-w-4xl mx-auto px-4 py-8 border-t border-slate-200">
+            <div class="mb-6">
+                <h3 class="font-heading text-2xl font-black text-slate-800 flex items-center"><i class="fas fa-comments text-orange-500 w-8"></i> Section 12: Class Dialogue</h3>
+                <p class="text-slate-500 font-medium ml-8">Dos voluntarios deberán leer esta conversación. Luego, todos juntos eligiremos la opción que falta.</p>
+            </div>
+            
+            <div class="glass-card p-6 border-l-8 border-l-orange-500 bg-orange-50/50 mb-6 shadow-sm">
+                <p class="font-bold text-slate-800 text-lg mb-2"><span class="text-orange-600 uppercase tracking-wider text-sm">Teacher:</span> <br> "Hello! How _____ you today, class?"</p>
+                <hr class="my-3 border-orange-200">
+                <p class="font-bold text-slate-800 text-lg mb-2"><span class="text-orange-600 uppercase tracking-wider text-sm">Students:</span> <br> "We _____ very happy because today _____ Friday!"</p>
+                <hr class="my-3 border-orange-200">
+                <p class="font-bold text-slate-800 text-lg"><span class="text-orange-600 uppercase tracking-wider text-sm">Teacher:</span> <br> "Great! Yesterday _____ a long day, but you are doing an excellent job."</p>
+            </div>
+
+            <div id="quiz-dialogue" class="space-y-4"></div>
+        </section>
+
+        <!-- SECTION 13: READING PRESENT -->
+        <section id="s13-reading-present" class="max-w-5xl mx-auto px-4 py-10 border-t border-slate-200">
+            <div class="mb-6">
+                <h3 class="font-heading text-2xl font-black text-slate-800 flex items-center"><i class="fas fa-book-open text-sky-500 w-8"></i> Section 13: Reading A (Present)</h3>
+                <p class="text-slate-500 font-medium ml-8">Leamos juntos el perfil de Sarah. Identifiquen los verbos "am", "is" y "are".</p>
+            </div>
+            
+            <div class="glass-card p-6 sm:p-8 border-t-8 border-t-sky-500 bg-sky-50/40 relative">
+                <button class="play-btn absolute top-6 right-6" onclick="playTTS('Hello! I am Sarah. I am 25 years old and I am a teacher. Right now, I am at school. The students are in the classroom. They are very smart, but today they are noisy. I am a little tired, but I am happy.')" title="Escuchar texto">
+                    <i class="fas fa-volume-up text-lg"></i>
+                </button>
+                <h4 class="font-heading font-black text-xl text-slate-800 mb-4 pr-14">Sarah's Profile</h4>
+                <div class="text-lg text-slate-700 space-y-2 font-medium leading-relaxed">
+                    <p>"Hello! I <b class="text-sky-600">am</b> Sarah. I <b class="text-sky-600">am</b> 25 years old and I <b class="text-sky-600">am</b> a teacher. Right now, I <b class="text-sky-600">am</b> at school. The students <b class="text-emerald-600">are</b> in the classroom. They <b class="text-emerald-600">are</b> very smart, but today they <b class="text-emerald-600">are</b> noisy. I <b class="text-sky-600">am</b> a little tired, but I <b class="text-sky-600">am</b> happy."</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 14: READING PAST -->
+        <section id="s14-reading-past" class="max-w-5xl mx-auto px-4 py-10">
+            <div class="mb-6">
+                <h3 class="font-heading text-2xl font-black text-slate-800 flex items-center"><i class="fas fa-book text-purple-500 w-8"></i> Section 14: Reading B (Past)</h3>
+                <p class="text-slate-500 font-medium ml-8">Ahora leamos esta historia sobre el fin de semana pasado.</p>
+            </div>
+            
+            <div class="glass-card p-6 sm:p-8 border-t-8 border-t-purple-500 bg-purple-50/40 relative">
+                <button class="play-btn absolute top-6 right-6" onclick="playTTS('Yesterday was Sunday. I was at home all morning. The weather was cold and rainy. In the afternoon, my friends were at the mall, but I wasn\'t with them. I was sick. It was a boring day.')" title="Escuchar texto">
+                    <i class="fas fa-volume-up text-lg"></i>
+                </button>
+                <h4 class="font-heading font-black text-xl text-slate-800 mb-4 pr-14">A Boring Weekend</h4>
+                <div class="text-lg text-slate-700 space-y-2 font-medium leading-relaxed">
+                    <p>"Yesterday <b class="text-purple-600">was</b> Sunday. I <b class="text-purple-600">was</b> at home all morning. The weather <b class="text-purple-600">was</b> cold and rainy. In the afternoon, my friends <b class="text-amber-600">were</b> at the mall, but I <b class="text-rose-600">wasn't</b> with them. I <b class="text-purple-600">was</b> sick. It <b class="text-purple-600">was</b> a boring day."</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 15: READING QUIZ -->
+        <section id="s15-practice-reading" class="max-w-4xl mx-auto px-4 py-8">
+            <div class="mb-6">
+                <h3 class="font-heading text-2xl font-black text-slate-800 flex items-center"><i class="fas fa-check-double text-emerald-500 w-8"></i> Section 15: Comprehension Check</h3>
+                <p class="text-slate-500 font-medium ml-8">¡A discutir! Respondan grupalmente basados en las dos lecturas anteriores.</p>
+            </div>
+            <div id="quiz-reading" class="space-y-4"></div>
+        </section>
+
+        <!-- SECTION 16: FINAL SCORE -->
+        <section id="s16-final-score" class="max-w-md mx-auto px-4 py-16 text-center">
+            <div class="glass-card p-8 sm:p-10 shadow-2xl border-4 border-indigo-600 bg-white">
+                <div class="w-24 h-24 bg-indigo-500 rounded-full flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,0.1)] mx-auto mb-6 border-4 border-indigo-800">
+                    <i class="fas fa-graduation-cap text-5xl text-white"></i>
+                </div>
+                <h3 class="font-heading text-3xl font-black text-slate-800 mb-2">Section 16: Lab Completed!</h3>
+                <p class="text-slate-500 font-bold uppercase tracking-widest text-xs mb-4">Total XP Earned by the Class</p>
+                
+                <div class="text-6xl sm:text-7xl font-black text-slate-900 mb-6 drop-shadow-sm">
+                    <span id="final-score-display">0</span><span class="text-2xl sm:text-3xl text-slate-400">XP</span>
+                </div>
+                
+                <p class="text-indigo-700 font-black mb-8 text-sm sm:text-base bg-indigo-50 py-3 px-4 rounded-xl inline-block border-2 border-indigo-200">
+                    🎉 ¡Excelente trabajo en equipo!
+                </p>
+                
+                <button onclick="window.scrollTo({top: 0, behavior: 'smooth'}); setTimeout(()=>location.reload(), 500);" class="btn-modern bg-slate-900 hover:bg-slate-800 text-white rounded-xl w-full py-4 text-lg shadow-lg">
+                    <i class="fas fa-redo-alt mr-2"></i> Restart Class Practice
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- STREAMING_CHUNK: Voice Synthesis (TTS) Setup ---
+        let synth = window.speechSynthesis;
+        let voices = [];
+
+        function populateVoiceList() {
+            try { voices = synth.getVoices(); } 
+            catch (e) { console.warn("TTS Voices delayed."); }
+        }
+
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoiceList;
+        }
+
+        function playTTS(text) {
+            try {
+                if (synth.speaking) synth.cancel();
+                if (text !== '') {
+                    if (voices.length === 0) populateVoiceList();
+                    const utterThis = new SpeechSynthesisUtterance(text);
+                    const enVoice = voices.find(v => v.lang.startsWith('en-US') && (v.name.includes('Google') || v.name.includes('Natural'))) || 
+                                    voices.find(v => v.lang.startsWith('en'));
+                    if(enVoice) utterThis.voice = enVoice;
+                    
+                    utterThis.rate = 0.85; 
+                    utterThis.pitch = 1;
+                    synth.speak(utterThis);
+                }
+            } catch (error) {
+                console.error("TTS Playback Error:", error);
+            }
+        }
+
+        // --- STREAMING_CHUNK: Vocabulary Data (Sections 2 & 3) ---
+        const getImgTag = (url, fallbackText) => {
+            const cleanText = encodeURIComponent(fallbackText);
+            const fallbackUrl = `https://placehold.co/400x300/f1f5f9/475569?text=${cleanText}`;
+            return `<img src="${url}" alt="${fallbackText}" onerror="this.onerror=null; this.src='${fallbackUrl}';" loading="lazy">`;
+        };
+
+        const feelingsData = [
+            { id: "Happy", trans: "Feliz", img: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&q=80", theme: "theme-emerald" },
+            { id: "Sad", trans: "Triste", img: "https://images.unsplash.com/photo-1516880711640-ef7daf81b620?w=400&q=80", theme: "theme-sky" },
+            { id: "Tired", trans: "Cansado", img: "https://images.unsplash.com/photo-1512413914440-2521c7dcf1f6?w=400&q=80", theme: "theme-purple" },
+            { id: "Hungry", trans: "Hambriento", img: "https://images.unsplash.com/photo-1620189507195-68309c04c4d0?w=400&q=80", theme: "theme-amber" },
+            { id: "Angry", trans: "Enojado", img: "https://images.unsplash.com/photo-1515281239448-2abecbf9d332?w=400&q=80", theme: "theme-rose" },
+            { id: "Scared", trans: "Asustado", img: "https://images.unsplash.com/photo-1505576399279-565b52d4ac71?w=400&q=80", theme: "theme-indigo" }
+        ];
+
+        const placesData = [
+            { id: "At school", trans: "En la escuela", img: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=400&q=80", theme: "theme-sky" },
+            { id: "At home", trans: "En casa", img: "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=400&q=80", theme: "theme-amber" },
+            { id: "At the park", trans: "En el parque", img: "https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=400&q=80", theme: "theme-emerald" },
+            { id: "At work", trans: "En el trabajo", img: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=400&q=80", theme: "theme-indigo" },
+            { id: "At the hospital", trans: "En el hospital", img: "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=400&q=80", theme: "theme-rose" },
+            { id: "On vacation", trans: "De vacaciones", img: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400&q=80", theme: "theme-purple" }
+        ];
+
+        // --- STREAMING_CHUNK: Expanded Quiz Data ---
+        const quizPresent = [
+            { q: "I _____ a good student.", es: "Yo soy un buen estudiante.", opts: ["am", "is", "are"], ans: 0, exp: "Regla de oro: Para 'I' siempre usamos 'am'." },
+            { q: "She _____ at home now.", es: "Ella está en casa ahora.", opts: ["am", "is", "are"], ans: 1, exp: "Como 'She' es la 3ra persona en singular, usamos 'is'." },
+            { q: "They _____ very tired.", es: "Ellos están muy cansados.", opts: ["am", "is", "are"], ans: 2, exp: "Al hablar de un grupo ('They' - plural), el verbo correcto es 'are'." },
+            { q: "My dog _____ hungry.", es: "Mi perro tiene hambre.", opts: ["am", "is", "are"], ans: 1, exp: "Atención clase: 'My dog' equivale al pronombre 'It' (animal/cosa singular), así que usamos 'is'." },
+            { q: "Carlos and Maria _____ my best friends.", es: "Carlos y María son mis mejores amigos.", opts: ["am", "is", "are"], ans: 2, exp: "Carlos y María son dos personas, lo cual equivale al plural 'They'. Por eso usamos 'are'." },
+            { q: "The pizza _____ delicious!", es: "¡La pizza está deliciosa!", opts: ["am", "is", "are"], ans: 1, exp: "La comida (The pizza) es una cosa singular (It), por lo tanto usamos 'is'." }
+        ];
+
+        const quizPast = [
+            { q: "I _____ happy yesterday.", es: "Yo estaba feliz ayer.", opts: ["was", "were"], ans: 0, exp: "Para el pronombre 'I' en pasado simple, usamos 'was'." },
+            { q: "You _____ at school last week.", es: "Tú estabas en la escuela la semana pasada.", opts: ["was", "were"], ans: 1, exp: "Recordatorio: Con el pronombre 'You' (tanto en singular 'tú' como plural 'ustedes') siempre usamos 'were'." },
+            { q: "The weather _____ cold on Sunday.", es: "El clima estaba frío el domingo.", opts: ["was", "were"], ans: 0, exp: "'The weather' (el clima) cuenta como 'It' singular. Usamos 'was'." },
+            { q: "We _____ scared.", es: "Nosotros estábamos asustados.", opts: ["was", "were"], ans: 1, exp: "Para 'We' (plural) la regla nos indica usar 'were'." },
+            { q: "My parents _____ at work.", es: "Mis padres estaban en el trabajo.", opts: ["was", "were"], ans: 1, exp: "'Parents' (padres) es plural, equivalente a 'They'. Por ello, usamos 'were'." }
+        ];
+
+        const quizMix = [
+            { q: "Today I _____ at work, but yesterday I _____ at home.", es: "Hoy estoy en el trabajo, pero ayer estaba en casa.", opts: ["am / was", "was / am", "is / were"], ans: 0, exp: "La primera parte dice 'Today' (hoy = am). La segunda dice 'yesterday' (ayer = was)." },
+            { q: "Now they _____ happy, but last night they _____ angry.", es: "Ahora ellos están felices, pero anoche estaban enojados.", opts: ["were / are", "are / were", "is / was"], ans: 1, exp: "'Now' indica presente plural (are). 'Last night' indica pasado plural (were)." },
+            { q: "He _____ sick last week, but today he _____ fine.", es: "Él estaba enfermo la semana pasada, pero hoy está bien.", opts: ["is / was", "was / is", "were / are"], ans: 1, exp: "'Last week' es pasado (was). 'Today' es presente (is)." }
+        ];
+
+        const quizNegType = [
+            { q: "I am hungry. (Make it negative)", es: "No tengo hambre.", ans: ["am not", "'m not", "i'm not", "i am not"], exp: "La negación de 'am' es 'am not'. Se contrae solo el sujeto: 'I'm not'.", hint: "I ______ hungry." },
+            { q: "She is a doctor. (Make it negative)", es: "Ella no es doctora.", ans: ["isn't", "is not", "she isn't", "she's not"], exp: "La negación de 'is' es 'isn't' (o is not).", hint: "She ______ a doctor." },
+            { q: "They were at the park. (Make it negative)", es: "Ellos no estaban en el parque.", ans: ["weren't", "were not", "they weren't"], exp: "La negación en pasado plural de 'were' es 'weren't'.", hint: "They ______ at the park." },
+            { q: "He was scared. (Make it negative)", es: "Él no estaba asustado.", ans: ["wasn't", "was not", "he wasn't"], exp: "La negación en pasado singular de 'was' es 'wasn't'.", hint: "He ______ scared." }
+        ];
+
+        const quizQuest = [
+            { q: "_____ you tired?", es: "¿Estás cansado?", opts: ["Am", "Is", "Are", "Was"], ans: 2, exp: "Es presente ('Estás'). Con el pronombre 'you' invertimos y ponemos 'Are' al principio." },
+            { q: "_____ she at the hospital yesterday?", es: "¿Estaba ella en el hospital ayer?", opts: ["Is", "Was", "Were", "Are"], ans: 1, exp: "La palabra 'yesterday' nos indica que es pregunta en pasado. Para 'she' usamos 'Was'." },
+            { q: "Where _____ they now?", es: "¿Dónde están ellos ahora?", opts: ["was", "were", "are", "is"], ans: 2, exp: "La palabra 'now' indica presente, y para el plural 'they' usamos 'are'." },
+            { q: "_____ the pizza delicious?", es: "¿Estaba deliciosa la pizza?", opts: ["Was", "Were", "Is", "Are"], ans: 0, exp: "Asumiendo que ya se la comieron (pasado) y siendo 'the pizza' singular, usamos 'Was'. (Si el contexto es ahora, podría ser Is)." }
+        ];
+
+        // New Dialogue Questions
+        const quizDialogue = [
+            { q: "1. Teacher: How _____ you today?", es: "¿Cómo están hoy?", opts: ["am", "is", "are", "was"], ans: 2, exp: "Aunque el maestro le hable a varios alumnos, el pronombre 'you' (ustedes) siempre va acompañado de 'are' en presente." },
+            { q: "2. Students: We _____ very happy...", es: "Nosotros estamos muy felices...", opts: ["was", "were", "are", "is"], ans: 2, exp: "El pronombre 'We' (nosotros) requiere 'are' en el presente." },
+            { q: "3. ...because today _____ Friday!", es: "...porque hoy es viernes.", opts: ["am", "is", "are", "was"], ans: 1, exp: "El día de hoy cuenta como un concepto singular ('It'). Por eso usamos 'is'." },
+            { q: "4. Teacher: Yesterday _____ a long day...", es: "Ayer fue un día largo...", opts: ["were", "are", "was", "is"], ans: 2, exp: "Habla sobre el día de ayer (pasado singular), por lo que corresponde 'was'." }
+        ];
+
+        const quizReadingComp = [
+            { q: "How old is Sarah? (Reading A)", es: "¿Cuántos años tiene Sarah?", opts: ["She is 20.", "She is 25.", "She is tired."], ans: 1, exp: "El texto A dice literalmente 'I am 25 years old'." },
+            { q: "Are the students quiet today? (Reading A)", es: "¿Están callados los estudiantes hoy?", opts: ["Yes, they are.", "No, they are noisy.", "They are at home."], ans: 1, exp: "El texto A menciona 'today they are noisy' (ruidosos)." },
+            { q: "Where was the person yesterday morning? (Reading B)", es: "¿Dónde estaba la persona ayer en la mañana?", opts: ["At home.", "At the mall.", "At school."], ans: 0, exp: "El inicio del texto B dice 'I was at home all morning'." },
+            { q: "Why wasn't the person with their friends? (Reading B)", es: "¿Por qué no estaba la persona con sus amigos?", opts: ["Because it was raining.", "Because they were at school.", "Because the person was sick."], ans: 2, exp: "El texto B justifica la ausencia diciendo 'I was sick' (Yo estaba enfermo/a)." }
+        ];
+
+        // --- STREAMING_CHUNK: Core Engine & Rendering ---
+        let currentScore = 0;
+        let comboCounter = 0;
+
+        function addScore(basePoints) {
+            comboCounter++;
+            let multiplier = comboCounter >= 3 ? 1.5 : 1;
+            if (comboCounter >= 5) multiplier = 2; 
+            
+            let pointsEarned = Math.floor(basePoints * multiplier);
+            currentScore += pointsEarned;
+            
+            document.getElementById('score-display').innerText = currentScore;
+            document.getElementById('final-score-display').innerText = currentScore;
+            
+            const badge = document.getElementById('score-badge');
+            badge.classList.add('scale-110', 'bg-emerald-100', 'border-emerald-400', 'text-emerald-800');
+            badge.classList.remove('bg-amber-100', 'border-amber-300', 'text-amber-700');
+            setTimeout(() => {
+                badge.classList.remove('scale-110', 'bg-emerald-100', 'border-emerald-400', 'text-emerald-800');
+                badge.classList.add('bg-amber-100', 'border-amber-300', 'text-amber-700');
+            }, 300);
+
+            return { points: pointsEarned, multi: multiplier };
+        }
+
+        function resetCombo() { comboCounter = 0; }
+        function toggleTrans(id) { document.getElementById(id).classList.toggle('active'); }
+
+        function showFeedback(container, isCorrect, feedbackHTML) {
+            const feedbackEl = container.querySelector('.feedback-msg');
+            feedbackEl.innerHTML = feedbackHTML;
+            feedbackEl.classList.remove('hidden');
+            if(isCorrect) {
+                feedbackEl.className = `feedback-msg mt-4 p-4 rounded-xl text-emerald-900 bg-emerald-50 border-2 border-emerald-300 animate-pop block text-sm sm:text-base font-bold`;
+            } else {
+                feedbackEl.className = `feedback-msg mt-4 p-4 rounded-xl text-rose-900 bg-rose-50 border-2 border-rose-300 animate-pop block text-sm sm:text-base font-bold`;
+            }
+        }
+
+        // Render Cards (Sections 2 & 3)
+        function renderCards(containerId, data) {
+            const grid = document.getElementById(containerId);
+            let html = '';
+            data.forEach(item => {
+                const imgHTML = getImgTag(item.img, item.id);
+                html += `
+                <div class="flip-card ${item.theme}" onclick="this.classList.toggle('flipped'); playTTS('${item.id}')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            ${imgHTML}
+                            <div class="flex flex-col items-center justify-center flex-grow p-3">
+                                <h3 class="font-heading font-black text-lg sm:text-xl text-slate-800 leading-tight">${item.id}</h3>
+                            </div>
+                        </div>
+                        <div class="flip-card-back text-center">
+                            <h3 class="font-heading font-black text-xl sm:text-2xl mb-3">${item.id}</h3>
+                            <p class="font-bold text-base sm:text-lg text-white/95">${item.trans}</p>
+                            <div class="mt-4 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mx-auto text-white">
+                                <i class="fas fa-volume-up"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            grid.innerHTML = html;
+        }
+
+        // Render MCQ (Sections 7, 8, 9, 11, 12, 15)
+        function renderMCQ(containerId, data) {
+            const container = document.getElementById(containerId);
+            data.forEach((item, idx) => {
+                const uniqueId = `trans-${containerId}-${idx}`;
+                const block = document.createElement('div');
+                block.dataset.answered = "false";
+                block.className = `glass-card p-6 sm:p-8 relative border-2 border-slate-200 shadow-sm`;
+                
+                let htmlStr = `
+                    <div class="flex justify-between items-start gap-4 mb-4">
+                        <p class="text-lg sm:text-xl font-bold text-slate-800">${item.q}</p>
+                        <div class="flex gap-2 shrink-0">
+                            <button onclick="playTTS('${item.q.replace(/_/g, "blank")}')" class="play-btn !w-10 !h-10" title="Escuchar">
+                                <i class="fas fa-volume-up text-sm"></i>
+                            </button>
+                            <button onclick="toggleTrans('${uniqueId}')" class="text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 w-10 h-10 rounded-full transition-colors border-2 border-slate-200 hover:border-indigo-300 flex items-center justify-center" title="Traducción">
+                                <i class="fas fa-language"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="${uniqueId}" class="translation-box mb-6 p-4 bg-indigo-50 border-l-4 border-indigo-500 text-sm text-indigo-900 font-bold rounded-r-xl">
+                        ${item.es}
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-${item.opts.length > 2 ? (item.opts.length === 4 ? 2 : 3) : 2} gap-3 sm:gap-4">`;
+                
+                item.opts.forEach((opt, i) => {
+                    const safeExp = item.exp.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+                    htmlStr += `<button onclick="handleMCQ(this, ${i}, ${item.ans}, '${safeExp}')" 
+                                class="btn-modern w-full bg-white border-2 border-slate-300 rounded-xl text-slate-700 py-3 sm:py-4 px-4 text-center text-base font-bold hover:border-sky-500 hover:text-sky-700 hover:bg-sky-50 shadow-sm">
+                                ${opt}
+                                </button>`;
+                });
+                
+                htmlStr += `</div><div class="feedback-msg hidden mt-4"></div>`;
+                block.innerHTML = htmlStr;
+                container.appendChild(block);
+            });
+        }
+
+        window.handleMCQ = function(btn, selectedIdx, correctIdx, explanation) {
+            const block = btn.closest('.glass-card');
+            if (block.dataset.answered === "true") return;
+            block.dataset.answered = "true";
+
+            const buttons = block.querySelectorAll('button.btn-modern');
+            buttons.forEach(b => {
+                b.disabled = true;
+                b.classList.remove('hover:border-sky-500', 'hover:text-sky-700', 'hover:bg-sky-50', 'cursor-pointer');
+                b.classList.add('opacity-60', 'cursor-not-allowed', 'bg-slate-50');
+            });
+
+            btn.classList.remove('opacity-60', 'bg-slate-50');
+
+            if (selectedIdx === correctIdx) {
+                const result = addScore(10);
+                btn.classList.replace('bg-white', 'bg-emerald-500');
+                btn.classList.replace('border-slate-300', 'border-emerald-600');
+                btn.classList.replace('text-slate-700', 'text-white');
+                
+                let multiBadge = result.multi > 1 ? `<span class="bg-amber-300 text-amber-900 text-xs px-2 py-1 rounded-md ml-2 font-black border border-amber-400">Combo x${result.multi}</span>` : '';
+                showFeedback(block, true, `<div class="font-black text-xl mb-1"><i class="fas fa-check-circle mr-1"></i> ¡Correcto! +${result.points}XP ${multiBadge}</div><div class="text-base opacity-90">${explanation}</div>`);
+            } else {
+                resetCombo();
+                btn.classList.replace('bg-white', 'bg-rose-500');
+                btn.classList.replace('border-slate-300', 'border-rose-600');
+                btn.classList.replace('text-slate-700', 'text-white');
+                
+                const correctBtn = buttons[correctIdx];
+                correctBtn.classList.remove('opacity-60', 'bg-slate-50');
+                correctBtn.classList.replace('bg-white', 'bg-emerald-50');
+                correctBtn.classList.replace('border-slate-300', 'border-emerald-500');
+                correctBtn.classList.replace('text-slate-700', 'text-emerald-800');
+                
+                showFeedback(block, false, `<div class="font-black text-xl mb-1"><i class="fas fa-times-circle mr-1"></i> Incorrecto</div><div class="text-base opacity-90">${explanation}</div>`);
+            }
+        };
+
+        // Render Typing Challenge (Section 10)
+        function renderTyping(containerId, data) {
+            const container = document.getElementById(containerId);
+            data.forEach((item, idx) => {
+                const uniqueId = `trans-${containerId}-${idx}`;
+                const block = document.createElement('div');
+                block.dataset.answered = "false";
+                block.className = `glass-card p-6 sm:p-8 relative border-2 border-slate-200 shadow-sm`;
+                
+                const ansString = item.ans.join("|");
+                const safeExp = item.exp.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+
+                let htmlStr = `
+                    <div class="flex justify-between items-start gap-4 mb-4">
+                        <p class="text-lg sm:text-xl font-bold text-slate-800">${idx+1}. <span class="text-slate-600 font-medium">${item.q}</span></p>
+                        <button onclick="toggleTrans('${uniqueId}')" class="text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 w-10 h-10 rounded-full transition-colors border-2 border-slate-200 hover:border-indigo-300 flex items-center justify-center shrink-0" title="Ver traducción">
+                            <i class="fas fa-language"></i>
+                        </button>
+                    </div>
+                    <div id="${uniqueId}" class="translation-box mb-6 p-4 bg-indigo-50 border-l-4 border-indigo-500 text-sm text-indigo-900 font-bold rounded-r-xl">
+                        ${item.es}
+                    </div>
+                    
+                    <p class="text-base font-bold text-sky-600 mb-3">${item.hint}</p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <input type="text" class="type-input flex-grow" placeholder="Escriban aquí la forma negativa..." onkeypress="handleEnter(event, this)">
+                        <button onclick="handleTypeSubmit(this, '${ansString}', '${safeExp}')" 
+                        class="btn-modern bg-slate-900 text-white border-2 border-slate-900 rounded-xl py-3 px-8 text-center hover:bg-slate-800 shadow-md shrink-0 text-lg">
+                        Check
+                        </button>
+                    </div>
+                    <div class="feedback-msg hidden mt-5"></div>`;
+                
+                block.innerHTML = htmlStr;
+                container.appendChild(block);
+            });
+        }
+
+        window.handleEnter = function(e, inputEl) {
+            if (e.key === 'Enter') { e.preventDefault(); inputEl.nextElementSibling.click(); }
+        }
+
+        window.handleTypeSubmit = function(btn, validAnswersStr, explanation) {
+            const block = btn.closest('.glass-card');
+            if (block.dataset.answered === "true") return;
+            
+            const input = block.querySelector('.type-input');
+            const userAnswer = input.value.trim().toLowerCase().replace(/[.?¿¡]/g, "");
+            
+            if (userAnswer === "") {
+                input.classList.add('border-rose-400', 'bg-rose-50');
+                setTimeout(() => input.classList.remove('border-rose-400', 'bg-rose-50'), 400);
+                return;
+            }
+
+            block.dataset.answered = "true";
+            const validAnswers = validAnswersStr.split("|");
+            
+            input.disabled = true;
+            btn.disabled = true;
+
+            if (validAnswers.includes(userAnswer)) {
+                const result = addScore(15); 
+                input.classList.replace('border-e2e8f0', 'border-emerald-500');
+                input.classList.add('bg-emerald-50', 'text-emerald-800');
+                btn.classList.replace('bg-slate-900', 'bg-emerald-600');
+                btn.classList.replace('border-slate-900', 'border-emerald-700');
+                
+                let multiBadge = result.multi > 1 ? `<span class="bg-amber-300 text-amber-900 text-xs px-2 py-1 rounded-md ml-2 font-black border border-amber-400">Combo x${result.multi}</span>` : '';
+                showFeedback(block, true, `<div class="font-black text-xl mb-1"><i class="fas fa-check-circle mr-1"></i> ¡Correcto! +${result.points}XP ${multiBadge}</div><div class="text-base opacity-90">${explanation}</div>`);
+            } else {
+                resetCombo();
+                input.classList.replace('border-e2e8f0', 'border-rose-500');
+                input.classList.add('bg-rose-50', 'text-rose-800');
+                btn.classList.replace('bg-slate-900', 'bg-rose-600');
+                btn.classList.replace('border-slate-900', 'border-rose-700');
+                
+                const correctAnswerDisplay = validAnswers[0];
+                showFeedback(block, false, `<div class="font-black text-xl mb-1"><i class="fas fa-times-circle mr-1"></i> Incorrecto</div><div class="text-base opacity-90">La respuesta esperada era: <b>${correctAnswerDisplay}</b>.<br>${explanation}</div>`);
+            }
+        };
+
+        // --- STREAMING_CHUNK: Initialization & Scroll ---
+        document.addEventListener('DOMContentLoaded', () => {
+            populateVoiceList();
+
+            renderCards('grid-feelings', feelingsData);
+            renderCards('grid-places', placesData);
+            
+            renderMCQ('quiz-present', quizPresent);
+            renderMCQ('quiz-past', quizPast);
+            renderMCQ('quiz-mix', quizMix);
+            renderTyping('quiz-neg', quizNegType);
+            renderMCQ('quiz-quest', quizQuest);
+            renderMCQ('quiz-dialogue', quizDialogue); // New Section Render
+            renderMCQ('quiz-reading', quizReadingComp);
+        });
+
+        // Scroll progress
+        window.addEventListener('scroll', () => {
+            const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progress-bar').style.width = scrolled + "%";
+        });
+    </script>
+</body>
+</html>
