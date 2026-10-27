@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Music Lab: Gotye Edition</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Fonts -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&family=Space+Grotesk:wght@500;700;900&display=swap');
+        
+        :root {
+            --primary-violet: #7c3aed; /* Deeper violet for light mode */
+            --primary-fuchsia: #c026d3; /* Deeper fuchsia for contrast */
+            --primary-rose: #e11d48;
+            --bg-light: #f8fafc; 
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Light Vibes Background - Soft animated blobs */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            animation: float 20s infinite alternate ease-in-out;
+        }
+        body::before {
+            top: -10%; left: -10%;
+            width: 500px; height: 500px;
+            background: rgba(192, 38, 211, 0.08); /* Soft Fuchsia */
+        }
+        body::after {
+            bottom: -10%; right: -10%;
+            width: 600px; height: 600px;
+            background: rgba(124, 58, 237, 0.08); /* Soft Violet */
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, 50px) scale(1.1); }
+            100% { transform: translate(-30px, 20px) scale(0.9); }
+        }
+
+        .font-heading { font-family: 'Space Grotesk', sans-serif; }
+
+        /* Progress Bar */
+        #progress-bar {
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-violet), var(--primary-fuchsia), var(--primary-rose));
+            width: 0%;
+            transition: width 0.3s ease-out;
+            position: fixed;
+            top: 0; left: 0; z-index: 1000;
+        }
+
+        /* Modern White Cards */
+        .glass-card {
+            background: var(--bg-card);
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.01);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        .glass-card:hover {
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.1);
+            transform: translateY(-4px);
+        }
+
+        /* Verb Dictionary Cards (Flashcards) */
+        .verb-card {
+            perspective: 1000px;
+            height: 160px;
+            cursor: pointer;
+        }
+        .verb-card-inner {
+            position: relative;
+            width: 100%; height: 100%;
+            text-align: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .verb-card.flipped .verb-card-inner { transform: rotateY(180deg); }
+        
+        .verb-front, .verb-back {
+            position: absolute;
+            width: 100%; height: 100%;
+            backface-visibility: hidden;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            border-radius: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        .verb-front {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            color: var(--text-main);
+            transition: border-color 0.3s;
+        }
+        .verb-card:hover .verb-front { border-color: #cbd5e1; }
+        
+        .verb-back {
+            background: linear-gradient(135deg, var(--primary-violet), var(--primary-fuchsia));
+            color: #ffffff;
+            border: 2px solid transparent;
+            transform: rotateY(180deg);
+        }
+
+        /* Inputs */
+        .type-input {
+            width: 110px; padding: 0.2rem 0.5rem; font-size: 1.25rem;
+            border: none; border-bottom: 3px solid #cbd5e1;
+            background: transparent; color: var(--primary-violet); font-weight: 800;
+            text-align: center; outline: none; transition: all 0.3s;
+            margin: 0 0.5rem;
+        }
+        .type-input:focus { border-bottom-color: var(--primary-fuchsia); }
+        .type-input::placeholder { color: #94a3b8; font-weight: 400; font-size: 1rem; }
+        .type-input.correct { border-bottom-color: #10b981; color: #10b981; pointer-events: none; background: rgba(16, 185, 129, 0.05); border-radius: 0.5rem 0.5rem 0 0; }
+        .type-input.wrong { border-bottom-color: #f43f5e; color: #f43f5e; animation: shake 0.4s; background: rgba(244, 63, 94, 0.05); border-radius: 0.5rem 0.5rem 0 0; }
+
+        .type-input-long {
+            width: 100%; padding: 1rem 1.5rem; font-size: 1.15rem;
+            border: 2px solid #e2e8f0; border-radius: 1rem;
+            background: #f8fafc; color: var(--text-main); font-weight: 700;
+            outline: none; transition: all 0.3s;
+        }
+        .type-input-long:focus { border-color: var(--primary-violet); background: #ffffff; box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1); }
+        .type-input-long.correct { border-color: #10b981; background: #ecfdf5; color: #047857; pointer-events: none; }
+        .type-input-long.wrong { border-color: #f43f5e; background: #fff1f2; color: #be123c; animation: shake 0.4s; }
+
+        /* Buttons */
+        .btn-modern { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); font-weight: 800; }
+        .btn-modern:active:not(:disabled) { transform: scale(0.95); }
+        .btn-modern:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); }
+        
+        .play-btn {
+            background: #f1f5f9;
+            color: var(--primary-violet);
+            border-radius: 50%; width: 44px; height: 44px;
+            display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer; border: 2px solid #e2e8f0;
+            transition: all 0.2s; flex-shrink: 0;
+        }
+        .play-btn:hover { background: var(--primary-violet); color: white; border-color: var(--primary-violet); transform: scale(1.1); box-shadow: 0 6px 15px rgba(124, 58, 237, 0.3); }
+
+        /* Utils */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        /* Video Container */
+        .video-container {
+            position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;
+            border-radius: 1.5rem; border: 4px solid #ffffff; 
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15);
+            background: #000;
+        }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+        /* Toasts */
+        #toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 9999; display: flex; flex-direction: column; gap: 1rem; }
+        .toast { background: #ffffff; border-left: 6px solid; padding: 1rem 1.5rem; border-radius: 0.75rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 0.75rem; font-weight: 700; color: var(--text-main); animation: slideInRight 0.3s forwards, fadeOut 0.3s 2.7s forwards; }
+        .toast.success { border-color: #10b981; }
+        .toast.error { border-color: #f43f5e; }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        
+        .particle { position: fixed; pointer-events: none; z-index: 9998; animation: fall linear forwards; }
+        @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg) scale(1); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg) scale(0.5); opacity: 0; } }
+
+        /* Custom emphasis text */
+        .text-gradient { background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-image: linear-gradient(to right, var(--primary-violet), var(--primary-fuchsia)); }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="progress-bar"></div>
+    <div id="toast-container"></div>
+
+    <!-- HEADER -->
+    <header class="h-16 sm:h-20 bg-white/80 backdrop-blur-xl border-b border-slate-200 z-50 sticky top-0 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
+            <div class="flex items-center gap-3 sm:gap-4">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-xl flex items-center justify-center text-white shadow-md shrink-0">
+                    <i class="fas fa-headphones-alt text-lg sm:text-xl"></i>
+                </div>
+                <div class="min-w-0">
+                    <h1 class="font-heading font-black text-slate-800 text-lg sm:text-xl md:text-2xl leading-tight truncate tracking-tight">Music Lab 🎧</h1>
+                    <p class="text-[10px] sm:text-xs font-bold text-violet-600 uppercase tracking-widest truncate">Gotye Edition</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+                <div class="bg-amber-50 text-amber-600 px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-xl font-black flex items-center gap-2 border border-amber-200 shadow-sm text-sm sm:text-base">
+                    <i class="fas fa-star text-amber-400 drop-shadow-sm"></i> 
+                    <span><span id="score-display">0</span> XP</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full relative pb-32">
+
+        <!-- INTRO & VIDEO -->
+        <section class="max-w-4xl mx-auto px-4 py-10 sm:py-16">
+            <div class="text-center mb-10">
+                <span class="bg-violet-100 text-violet-700 text-xs sm:text-sm font-black px-4 py-1.5 rounded-full uppercase tracking-widest border border-violet-200 mb-4 inline-block shadow-sm">Listening Practice</span>
+                <h2 class="font-heading text-4xl sm:text-5xl md:text-6xl text-slate-900 tracking-tight leading-tight mb-4 font-black">
+                    Somebody That I <span class="text-gradient">Used To</span> Know
+                </h2>
+                <p class="text-lg text-slate-500 font-medium max-w-2xl mx-auto">Reproduce la canción, disfruta la música y prepárate para analizar la gramática oculta en la letra.</p>
+            </div>
+
+            <!-- YouTube Video Player (Clean Embedded URL with NO-COOKIE and REFERRER POLICY to fix Error 153) -->
+            <div class="video-container mb-6">
+                <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/8UVNT4wvIGY?rel=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <p class="text-center text-sm text-slate-400 mt-4"><i class="fas fa-info-circle"></i> Si el video no carga en esta vista previa, es por la seguridad del sandbox. Ábrelo localmente para visualizarlo.</p>
+        </section>
+
+        <!-- GRAMMAR ANALYSIS: USED TO -->
+        <section class="max-w-5xl mx-auto px-4 py-8">
+            <div class="glass-card p-6 sm:p-10 border-l-8 border-l-violet-500">
+                <div class="flex flex-col md:flex-row gap-8 items-center">
+                    <div class="flex-1">
+                        <h3 class="font-heading text-3xl text-slate-800 mb-4 font-black"><i class="fas fa-search text-violet-500 mr-2"></i> Phrase Analysis: "Used To"</h3>
+                        <p class="text-slate-600 text-lg leading-relaxed mb-4">
+                            El título de la canción esconde una regla gramatical dorada. <br>
+                            <b class="text-slate-800 text-xl bg-slate-100 px-3 py-1 rounded-lg border border-slate-200 inline-block mt-2 shadow-sm">Used to + Verbo</b> significa <b class="text-violet-600">"Solía"</b>. 
+                        </p>
+                        <p class="text-slate-500 mb-6">
+                            Lo usamos para hablar de hábitos, acciones o estados que eran ciertos en el <b>pasado</b>, pero que <b>ya no lo son</b> en el presente.
+                        </p>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100 hover:shadow-md transition-shadow">
+                                <span class="bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase px-2 py-1 rounded mb-2 inline-block">Afirmativo</span>
+                                <p class="font-bold text-slate-800 text-lg mb-1">"Somebody that I used to know"</p>
+                                <p class="text-sm text-slate-600">🇪🇸 Alguien que yo <u class="decoration-emerald-400 decoration-2">solía</u> conocer (pero ahora siento que es un extraño).</p>
+                            </div>
+                            
+                            <div class="bg-rose-50/50 p-4 rounded-xl border border-rose-100 hover:shadow-md transition-shadow">
+                                <span class="bg-rose-100 text-rose-700 text-[10px] font-black uppercase px-2 py-1 rounded mb-2 inline-block">Negativo</span>
+                                <p class="font-bold text-slate-800 text-lg mb-1">I didn't use to smoke</p>
+                                <p class="text-sm text-slate-600">🇪🇸 Yo <u class="decoration-rose-400 decoration-2">no solía</u> fumar. <i>(Nota: En negativo desaparece la 'd' de used).</i></p>
+                            </div>
+
+                            <div class="bg-sky-50/50 p-4 rounded-xl border border-sky-100 hover:shadow-md transition-shadow">
+                                <span class="bg-sky-100 text-sky-700 text-[10px] font-black uppercase px-2 py-1 rounded mb-2 inline-block">Pregunta</span>
+                                <p class="font-bold text-slate-800 text-lg mb-1">Did you use to play here?</p>
+                                <p class="text-sm text-slate-600">🇪🇸 ¿<u class="decoration-sky-400 decoration-2">Solías</u> jugar aquí? <i>(Se usa 'Did' + 'use to' sin 'd').</i></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Formula Box -->
+                    <div class="w-full md:w-1/3 bg-gradient-to-br from-violet-50 to-fuchsia-50 p-8 rounded-2xl border border-violet-100 text-center shadow-lg relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl text-violet-500"><i class="fas fa-atom"></i></div>
+                        <i class="fas fa-lightbulb text-4xl text-amber-400 mb-4 animate-bounce"></i>
+                        <h4 class="font-black text-slate-800 mb-3 text-xl">Fórmula Básica</h4>
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 mb-3">
+                            <p class="text-violet-600 font-black text-lg">Sujeto + used to + Verbo (Base)</p>
+                        </div>
+                        <p class="text-slate-500 text-sm font-medium">Ej: I used to play piano.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VERB DICTIONARY -->
+        <section class="max-w-5xl mx-auto px-4 py-12">
+            <div class="text-center mb-12">
+                <span class="bg-fuchsia-100 text-fuchsia-700 text-xs sm:text-sm font-black px-4 py-1.5 rounded-full uppercase tracking-widest border border-fuchsia-200 mb-4 inline-block shadow-sm">Vocabulario</span>
+                <h2 class="font-heading text-3xl sm:text-4xl text-slate-900 mb-4 font-black">Song Dictionary 📖</h2>
+                <p class="text-slate-500 font-medium mb-8 max-w-2xl mx-auto">Estos son los verbos en pasado que aparecen en la canción. Nota que en inglés existen dos tipos:</p>
+                
+                <div class="flex flex-col sm:flex-row justify-center gap-4 max-w-2xl mx-auto mb-10">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 flex-1 shadow-sm hover:shadow-md transition-shadow">
+                        <span class="text-emerald-600 font-black text-lg flex items-center justify-center gap-2"><i class="fas fa-check-circle"></i> Regulares</span>
+                        <p class="text-sm text-slate-500 mt-2">Terminan en <b class="text-slate-700">-ed</b> (Ej. treated, happened).</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 flex-1 shadow-sm hover:shadow-md transition-shadow">
+                        <span class="text-rose-600 font-black text-lg flex items-center justify-center gap-2"><i class="fas fa-bolt"></i> Irregulares</span>
+                        <p class="text-sm text-slate-500 mt-2">Cambian por completo o se quedan igual (Ej. knew, cut).</p>
+                    </div>
+                </div>
+                <p class="text-slate-600 font-bold bg-amber-50 inline-block px-4 py-2 rounded-lg border border-amber-200"><i class="fas fa-hand-pointer text-amber-500 mr-2"></i> ¡Toca las tarjetas para voltearlas y memorizarlas!</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-5" id="verb-dictionary">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- LYRICS CHALLENGE (Snippet) -->
+        <section class="max-w-4xl mx-auto px-4 py-12">
+            <div class="glass-card p-6 sm:p-10 border-t-8 border-fuchsia-500 relative overflow-hidden bg-white">
+                <div class="absolute -top-10 -right-10 text-9xl opacity-5 text-fuchsia-500"><i class="fas fa-music"></i></div>
+                
+                <div class="text-center mb-8 relative z-10">
+                    <h3 class="font-heading text-3xl text-slate-900 font-black mb-3">Lyrics Challenge 🎤</h3>
+                    <p class="text-slate-600 font-medium">
+                        Completa este pequeño fragmento de 4 líneas usando los verbos en <b>pasado</b> correctos.<br>
+                        <span class="text-xs text-fuchsia-600 mt-2 block font-bold bg-fuchsia-50 py-1 px-3 rounded-full inline-block border border-fuchsia-100">*Solo practicamos con un fragmento. ¡Busca la letra completa en Google si quieres seguir practicando!</span>
+                    </p>
+                </div>
+
+                <div class="bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-200 font-heading text-lg sm:text-xl leading-loose text-slate-700 relative z-10 space-y-6 shadow-inner" id="lyrics-container">
+                    
+                    <p class="flex flex-wrap items-center">
+                        <span class="text-fuchsia-500 font-black mr-2">1.</span> Now and then I think of when we 
+                        <input type="text" class="type-input" data-ans="were" placeholder="(be)"> 
+                        together.
+                    </p>
+                    <p class="flex flex-wrap items-center">
+                        <span class="text-fuchsia-500 font-black mr-2">2.</span> Like when you 
+                        <input type="text" class="type-input" data-ans="said" placeholder="(say)"> 
+                        you 
+                        <input type="text" class="type-input" data-ans="felt" placeholder="(feel)"> 
+                        so happy you could die.
+                    </p>
+                    <p class="flex flex-wrap items-center">
+                        <span class="text-fuchsia-500 font-black mr-2">3.</span> I told myself that you 
+                        <input type="text" class="type-input" data-ans="were" placeholder="(be)"> 
+                        right for me.
+                    </p>
+                    <p class="flex flex-wrap items-center">
+                        <span class="text-fuchsia-500 font-black mr-2">4.</span> But 
+                        <input type="text" class="type-input" data-ans="felt" placeholder="(feel)"> 
+                        so lonely in your company.
+                    </p>
+
+                    <div class="mt-10 text-center pt-4 border-t border-slate-200">
+                        <button onclick="checkLyrics()" class="btn-modern bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white py-3 px-10 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 w-full sm:w-auto text-lg">
+                            Check Lyrics <i class="fas fa-check-circle ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GENERAL PRACTICE (Custom Sentences) -->
+        <section class="max-w-5xl mx-auto px-4 py-12">
+            <div class="text-center mb-12">
+                <span class="bg-indigo-100 text-indigo-700 text-xs sm:text-sm font-black px-4 py-1.5 rounded-full uppercase tracking-widest border border-indigo-200 mb-4 inline-block shadow-sm">General Practice</span>
+                <h2 class="font-heading text-3xl sm:text-4xl text-slate-900 mb-4 font-black">Apply The Verbs ✍️</h2>
+                <p class="text-slate-500 font-medium max-w-2xl mx-auto">
+                    Ahora que conoces estos verbos en pasado y el "used to", aplícalos en estas 8 oraciones originales. Escribe la respuesta, dale a Check, o escucha la pronunciación.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="general-practice">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+        
+        <!-- CONCLUSION SECTION -->
+        <section id="final-celebration" class="max-w-3xl mx-auto px-4 py-16 text-center hidden">
+            <div class="glass-card p-10 shadow-2xl border-4 border-fuchsia-400 bg-white relative overflow-hidden">
+                <div class="absolute -top-20 -right-20 w-64 h-64 bg-fuchsia-200 rounded-full mix-blend-multiply opacity-50 blur-3xl"></div>
+                <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-violet-200 rounded-full mix-blend-multiply opacity-50 blur-3xl"></div>
+                
+                <div class="text-8xl mb-6 animate-bounce relative z-10 drop-shadow-xl">🎸</div>
+                <h3 class="font-heading text-5xl text-slate-900 mb-4 relative z-10 font-black">Rockstar Status!</h3>
+                <p class="text-xl text-slate-600 font-medium mb-8 relative z-10 max-w-lg mx-auto">
+                    ¡Has completado el laboratorio musical! Dominaste los verbos en pasado y descubriste cómo aplicar el vocabulario de las canciones en la vida real.
+                </p>
+                <div class="text-4xl font-black text-white bg-gradient-to-r from-violet-600 to-fuchsia-600 inline-block px-10 py-5 rounded-3xl shadow-xl hover:scale-105 transition-transform cursor-default relative z-10">
+                    Total XP: <span id="final-xp-display">0</span> <i class="fas fa-star text-yellow-300"></i>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- State ---
+        let currentScore = 0;
+        let practiceAnswered = 0;
+        const totalPracticeQs = 10;
+
+        // --- Utils ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? '<i class="fas fa-check-circle text-emerald-500 text-2xl"></i>' : '<i class="fas fa-times-circle text-rose-500 text-2xl"></i>';
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { if (container.contains(toast)) container.remove(); }, 3000);
+        }
+
+        function addScore(points) {
+            currentScore += points;
+            
+            // Animate score counter
+            const scoreDisplay = document.getElementById('score-display');
+            scoreDisplay.innerText = currentScore;
+            scoreDisplay.parentElement.classList.add('scale-110', 'bg-amber-200');
+            setTimeout(() => scoreDisplay.parentElement.classList.remove('scale-110', 'bg-amber-200'), 300);
+            
+            document.getElementById('final-xp-display').innerText = currentScore;
+        }
+
+        function shootConfetti(x, y) {
+            const emojis = ['🎵', '🎶', '🎸', '⭐', '✨', '👏', '🎉'];
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle font-black text-2xl sm:text-3xl drop-shadow-md';
+                particle.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                const offsetX = (Math.random() - 0.5) * 150;
+                particle.style.left = `calc(${x}px + ${offsetX}px)`;
+                particle.style.top = `${y}px`;
+                const duration = 1 + Math.random() * 2;
+                particle.style.animationDuration = `${duration}s`;
+                document.body.appendChild(particle);
+                setTimeout(() => { if (document.body.contains(particle)) particle.remove(); }, duration * 1000);
+            }
+        }
+
+        // --- TTS ---
+        let synth = window.speechSynthesis;
+        let voices = [];
+        function populateVoiceList() { try { voices = synth.getVoices(); } catch (e) {} }
+        if (speechSynthesis.onvoiceschanged !== undefined) { speechSynthesis.onvoiceschanged = populateVoiceList; }
+        
+        function playTTS(text) {
+            try {
+                if (synth.speaking) synth.cancel();
+                if (text !== '') {
+                    if (voices.length === 0) populateVoiceList();
+                    const utterThis = new SpeechSynthesisUtterance(text);
+                    const enVoice = voices.find(v => v.lang.startsWith('en-US')) || voices.find(v => v.lang.startsWith('en-GB')) || voices.find(v => v.lang.startsWith('en'));
+                    if(enVoice) utterThis.voice = enVoice;
+                    utterThis.rate = 0.85; 
+                    utterThis.pitch = 1.1;
+                    synth.speak(utterThis);
+                }
+            } catch (error) {}
+        }
+
+        // --- Verb Dictionary with Emojis ---
+        const verbData = [
+            { base: "Be", past: "Was / Were", es: "Ser / Estar", type: "Irregular", emoji: "🧑‍🤝‍🧑" },
+            { base: "Know", past: "Knew", es: "Saber / Conocer", type: "Irregular", emoji: "🧠" },
+            { base: "Feel", past: "Felt", es: "Sentir", type: "Irregular", emoji: "❤️" },
+            { base: "Tell", past: "Told", es: "Decir / Contar", type: "Irregular", emoji: "🗣️" },
+            { base: "Say", past: "Said", es: "Decir", type: "Irregular", emoji: "💬" },
+            { base: "Find", past: "Found", es: "Encontrar", type: "Irregular", emoji: "🔍" },
+            { base: "Make", past: "Made", es: "Hacer", type: "Irregular", emoji: "🛠️" },
+            { base: "Have", past: "Had", es: "Tener", type: "Irregular", emoji: "🤲" },
+            { base: "Cut", past: "Cut", es: "Cortar", type: "Irregular", emoji: "✂️" },
+            { base: "Treat", past: "Treated", es: "Tratar", type: "Regular", emoji: "🤝" },
+            { base: "Happen", past: "Happened", es: "Suceder", type: "Regular", emoji: "⚡" },
+            { base: "Change", past: "Changed", es: "Cambiar", type: "Regular", emoji: "🔄" }
+        ];
+
+        function renderDictionary() {
+            const container = document.getElementById('verb-dictionary');
+            verbData.forEach(verb => {
+                const card = document.createElement('div');
+                card.className = "verb-card";
+                card.dataset.flipped = "false";
+                
+                const typeBg = verb.type === 'Regular' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-rose-100 text-rose-700 border-rose-200';
+                
+                card.innerHTML = `
+                    <div class="verb-card-inner">
+                        <div class="verb-front">
+                            <div class="text-4xl mb-2 drop-shadow-sm">${verb.emoji}</div>
+                            <span class="text-2xl font-black text-slate-800">${verb.base}</span>
+                            <span class="text-[10px] font-bold mt-2 border px-2 py-0.5 rounded-full ${typeBg}">${verb.type}</span>
+                        </div>
+                        <div class="verb-back">
+                            <span class="text-[10px] uppercase text-white/70 mb-1 tracking-widest font-bold">Past Tense</span>
+                            <span class="text-2xl sm:text-3xl font-black mb-1">${verb.past}</span>
+                            <div class="w-8 h-1 bg-white/30 rounded my-1"></div>
+                            <span class="text-sm font-semibold">${verb.es}</span>
+                        </div>
+                    </div>
+                `;
+                card.onclick = () => {
+                    card.classList.toggle('flipped');
+                    if (card.dataset.flipped === "false") {
+                        addScore(5); // Reward exploration
+                        card.dataset.flipped = "true";
+                        
+                        // Mini confetti on first flip
+                        const rect = card.getBoundingClientRect();
+                        const particle = document.createElement('div');
+                        particle.className = 'particle font-black text-xl z-50';
+                        particle.innerText = '✨';
+                        particle.style.left = `${rect.left + rect.width/2}px`;
+                        particle.style.top = `${rect.top}px`;
+                        particle.style.animationDuration = `1s`;
+                        document.body.appendChild(particle);
+                        setTimeout(() => particle.remove(), 1000);
+                    }
+                };
+                container.appendChild(card);
+            });
+        }
+
+        // --- Lyrics Challenge ---
+        window.checkLyrics = function() {
+            const inputs = document.querySelectorAll('#lyrics-container .type-input');
+            let allCorrect = true;
+            
+            inputs.forEach(input => {
+                if (input.classList.contains('correct')) return; // already correct
+                
+                const userAnswer = input.value.trim().toLowerCase();
+                const correctAnswer = input.dataset.ans.toLowerCase();
+                
+                if (userAnswer === correctAnswer) {
+                    input.classList.remove('wrong');
+                    input.classList.add('correct');
+                    input.value = correctAnswer; 
+                    addScore(20);
+                } else {
+                    allCorrect = false;
+                    if(userAnswer !== "") {
+                        input.classList.add('wrong');
+                        setTimeout(() => input.classList.remove('wrong'), 500);
+                    }
+                }
+            });
+
+            if(allCorrect) {
+                showToast("¡Fragmento completado perfectamente! 🎤", "success");
+                const btn = document.querySelector('#lyrics-container button');
+                const rect = btn.getBoundingClientRect();
+                shootConfetti(rect.left + rect.width/2, rect.top);
+                btn.innerHTML = 'Completed! <i class="fas fa-star text-yellow-300 ml-2"></i>';
+                btn.classList.replace('from-violet-600', 'from-emerald-500');
+                btn.classList.replace('to-fuchsia-600', 'to-emerald-400');
+                btn.disabled = true;
+            } else {
+                showToast("Faltan algunas palabras o hay errores. ¡Revisa tu ortografía!", "error");
+            }
+        };
+
+        // --- General Practice ---
+        const practiceData = [
+            { q: "I _____ how to play guitar when I was 10.", ans: "knew", hint: "(know)", es: "Yo sabía tocar guitarra cuando tenía 10.", read: "I knew how to play guitar when I was 10." },
+            { q: "She _____ me a secret yesterday.", ans: "told", hint: "(tell)", es: "Ella me contó un secreto ayer.", read: "She told me a secret yesterday." },
+            { q: "We _____ a hidden treasure in the garden.", ans: "found", hint: "(find)", es: "Nosotros encontramos un tesoro escondido en el jardín.", read: "We found a hidden treasure in the garden." },
+            { q: "I _____ very sad after the movie.", ans: "felt", hint: "(feel)", es: "Me sentí muy triste después de la película.", read: "I felt very sad after the movie." },
+            { q: "He _____ to play video games all night.", ans: "used", hint: "(use... to play)", es: "Él solía jugar videojuegos toda la noche.", read: "He used to play video games all night." },
+            { q: "They _____ a beautiful cake for her birthday.", ans: "made", hint: "(make)", es: "Ellos hicieron un hermoso pastel para su cumpleaños.", read: "They made a beautiful cake for her birthday." },
+            { q: "I _____ a dog when I was a kid.", ans: "had", hint: "(have)", es: "Yo tenía un perro cuando era niño.", read: "I had a dog when I was a kid." },
+            { q: "He _____ his finger with a knife.", ans: "cut", hint: "(cut)", es: "Él se cortó el dedo con un cuchillo.", read: "He cut his finger with a knife." },
+            { q: "The accident _____ very quickly.", ans: "happened", hint: "(happen)", es: "El accidente sucedió muy rápido.", read: "The accident happened very quickly." },
+            { q: "You _____ me like a stranger.", ans: "treated", hint: "(treat)", es: "Tú me trataste como a un extraño.", read: "You treated me like a stranger." }
+        ];
+
+        function renderPractice() {
+            const container = document.getElementById('general-practice');
+            practiceData.forEach((item, idx) => {
+                const block = document.createElement('div');
+                block.className = "glass-card p-6 flex flex-col gap-4 bg-white";
+                block.dataset.answered = "false";
+                
+                block.innerHTML = `
+                    <div class="flex justify-between items-start gap-4">
+                        <p class="text-lg font-heading font-bold text-slate-800 flex-grow">
+                            <span class="bg-violet-100 text-violet-700 w-7 h-7 rounded-full inline-flex items-center justify-center text-sm mr-2 shadow-inner">${idx+1}</span> 
+                            ${item.q}
+                        </p>
+                        <button onclick="playTTS('${item.read.replace(/'/g, "\\'")}')" class="play-btn" title="Escuchar pronunciación">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
+                    </div>
+                    <p class="text-sm text-slate-500 font-medium">🇪🇸 ${item.es}</p>
+                    <div class="mt-auto flex flex-col sm:flex-row gap-3 items-center pt-2">
+                        <input type="text" class="type-input-long flex-grow" placeholder="${item.hint}" onkeypress="if(event.key==='Enter') this.nextElementSibling.click()">
+                        <button onclick="checkPractice(this, '${item.ans}')" class="btn-modern bg-violet-600 text-white rounded-xl py-3 px-6 hover:bg-violet-700 hover:shadow-lg w-full sm:w-auto shrink-0 shadow-md">
+                            Check
+                        </button>
+                    </div>
+                `;
+                container.appendChild(block);
+            });
+        }
+
+        window.checkPractice = function(btn, correctAns) {
+            const block = btn.closest('.glass-card');
+            if (block.dataset.answered === "true") return;
+            
+            const input = block.querySelector('input');
+            const userAnswer = input.value.trim().toLowerCase();
+            
+            if (userAnswer === "") {
+                showToast("Por favor, escribe una respuesta.", "error");
+                return;
+            }
+
+            if (userAnswer === correctAns) {
+                input.classList.add('correct');
+                input.value = correctAns;
+                btn.innerHTML = '<i class="fas fa-check"></i> Correct!';
+                btn.classList.replace('bg-violet-600', 'bg-emerald-500');
+                btn.classList.replace('hover:bg-violet-700', 'hover:bg-emerald-600');
+                btn.disabled = true;
+                block.dataset.answered = "true";
+                
+                addScore(25);
+                const rect = btn.getBoundingClientRect();
+                shootConfetti(rect.left + rect.width/2, rect.top);
+                
+                practiceAnswered++;
+                if (practiceAnswered === totalPracticeQs) {
+                    setTimeout(() => {
+                        const finalScreen = document.getElementById('final-celebration');
+                        finalScreen.classList.remove('hidden');
+                        finalScreen.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        shootConfetti(window.innerWidth/2, window.innerHeight/2);
+                        // Extra bursts
+                        setTimeout(() => shootConfetti(window.innerWidth/3, window.innerHeight/3), 500);
+                        setTimeout(() => shootConfetti(window.innerWidth/1.5, window.innerHeight/1.5), 1000);
+                    }, 1000);
+                }
+            } else {
+                input.classList.add('wrong');
+                setTimeout(() => input.classList.remove('wrong'), 500);
+                showToast("Incorrecto. ¡Revisa el diccionario de verbos!", "error");
+            }
+        };
+
+        // --- Init ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDictionary();
+            renderPractice();
+            
+            // Scroll progress
+            window.addEventListener('scroll', () => {
+                const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                document.getElementById('progress-bar').style.width = scrolled + "%";
+            });
+        });
+    </script>
+
+</body>
+</html>
